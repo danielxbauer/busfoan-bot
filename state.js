@@ -1,9 +1,9 @@
-import { createMachine, interpret } from 'xstate';
-import { assign } from 'xstate/lib/actionTypes';
+const { createMachine, interpret } = require('xstate');
+const { assign } = require('xstate/lib');
 
 const initialContext = {
     questions: [
-        { text: 'Rot oder schwarz?' }
+        { text: 'Rot [1] oder Schwarz [2]?' }
     ],
     activeQuestion: -1,
     players: [],
@@ -16,9 +16,15 @@ const isQuestionLeft = context => context.activeQuestion < (context.questions.le
 const noQuestionsLeft = context => !isQuestionLeft(context);
 const isPlayerLeft = context => context.activePlayer < (context.players.length - 1);
 
-const addPlayer = assign({
-    players: (context, event) => [...context.players, 'test']
-});
+const addPlayer = (context, { bot, msg }) => {
+    context.players.push({ name: msg.member.username });
+
+    if (context.players.length === 1) {
+        bot.createMessage(msg.channel.id, "Du bist alleine im bus");
+    } else {
+        bot.createMessage(msg.channel.id, "Leiwaund. Im bus san scho " + context.players.length + " leit");
+    }
+};
 
 const selectQuestion = context => callback => {
     const result = isQuestionLeft(context) ? 'SUCCESS' : 'NO_MORE_QUESTIONS';
@@ -28,10 +34,24 @@ const selectQuestion = context => callback => {
     callback(result);
 };
 
+const welcomeMessage = (context, { bot, msg }) => {
+    bot.createMessage(msg.channel.id, "Gscheid busfoan! Wer will einsteigen? (Tippe !einsteigen)");
+};
+
 const selectPlayer = context => callback => {
     const result = isPlayerLeft(context) ?  'SUCCESS' : 'NO_PLAYER_LEFT';
     context.activePlayer++;
     callback(result);
+};
+
+const startQuestions = (context, { bot, msg }) => {
+    bot.createMessage(msg.channel.id, "Da bus startet mit " + context.players.length + " leiwaunde leit.");
+};
+
+const askQuestion = (context, { bot, msg }) => {
+    console.log("ASK QUESTION");
+    const question = context.questions[context.activeQuestion];
+    bot.createMachine(msg.channel.id, question.text);
 };
 
 const gameMachine = createMachine({
@@ -41,7 +61,10 @@ const gameMachine = createMachine({
     states: {
         idle: {
             on: {
-                START: 'wait-for-players',
+                START: {
+                    target: 'wait-for-players',
+                    actions: [welcomeMessage]
+                }
                 // END: 'end'
             }
         },
@@ -53,6 +76,7 @@ const gameMachine = createMachine({
                 },
                 START: {
                     target: 'question',
+                    actions: [startQuestions],
                     cond: areEnoughPlayers
                 },
                 // END: 'end'
@@ -81,7 +105,7 @@ const gameMachine = createMachine({
                     on: {
                         SUCCESS: {
                             target: 'wait-for-answer',
-                            actions: ['ask-question'],
+                            actions: [askQuestion],
                         },
                         NO_PLAYER_LEFT: {
                             target: 'question-selection',
@@ -114,6 +138,6 @@ const gameMachine = createMachine({
     }
 });
 
-export default interpret(gameMachine)
-    .onTransition((state) => console.log(state.value))
+module.exports = interpret(gameMachine)
+    // .onTransition((state) => console.log(state.value))
     .start();
