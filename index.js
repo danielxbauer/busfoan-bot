@@ -1,6 +1,7 @@
 const eris = require('eris');
+const config =  require('./config.json');
 
-var bot = new eris.Client("NzA2NDk3MjMwMDA1MjA3MDQx.Xq7M5Q.c7b3KkWWJI2wj_9cZC2hoqap1pU");
+var bot = new eris.Client(config.token);
 
 var bus = {
     isStarted: false,
