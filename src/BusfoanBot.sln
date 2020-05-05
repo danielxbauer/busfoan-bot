@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30001.183
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusfoanBot", "BusfoanBot\BusfoanBot.csproj", "{2BC1C739-B226-435F-8069-2974215C9292}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2BC1C739-B226-435F-8069-2974215C9292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BC1C739-B226-435F-8069-2974215C9292}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BC1C739-B226-435F-8069-2974215C9292}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BC1C739-B226-435F-8069-2974215C9292}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3821C7CC-FD9A-45FF-9C47-C6E003C2D71D}
+	EndGlobalSection
+EndGlobal
