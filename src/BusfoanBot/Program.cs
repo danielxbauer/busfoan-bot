@@ -1,9 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using Discord;
 using Discord.WebSocket;
 using Statecharts.NET;
 using Statecharts.NET.Model;
-using Statecharts.NET.XState;
 using static BusfoanBot.BotStateMachine;
 using static BusfoanBot.BotStateMachineEvents;
 using Task = System.Threading.Tasks.Task;
@@ -12,22 +11,14 @@ namespace BusfoanBot
 {
 	class Program
     {
-		private static DiscordSocketClient client;
 		private static readonly string token = "NzA2NDk3MjMwMDA1MjA3MDQx.Xq7pFw.mGgt38aCNVHmcZ4NxR4xXwqDMgY";
+		
+		private static DiscordSocketClient client;
+		private static IDictionary<ulong, RunningStatechart<BotContext>> statecharts
+			= new Dictionary<ulong, RunningStatechart<BotContext>>();
 
-		private static RunningStatechart<BotContext> statechart;
-
-		public static async Task Main(string[] args)
+		public static async Task Main()
         {
-			var parsedStatechart = Parser.Parse(Behaviour) as ExecutableStatechart<BotContext>;
-			statechart = Interpreter.Interpret(parsedStatechart);
-			statechart.OnMacroStep += step =>
-			{
-				Log(new LogMessage(LogSeverity.Info, "StateChart", string.Join(", ", statechart.NextEvents)));
-			};
-
-			string viz = Behaviour.AsXStateVisualizerV4Definition();
-			
 			client = new DiscordSocketClient();
 			client.Log += Log;
 			client.MessageReceived += MessageReceived;
@@ -35,7 +26,8 @@ namespace BusfoanBot
 			await client.LoginAsync(TokenType.Bot, token);
 			await client.StartAsync();
 
-			await statechart.Start();
+			// Block this task until the program is closed.
+			await Task.Delay(-1);
 		}
 
 		private static Task Log(LogMessage message)
@@ -49,24 +41,45 @@ namespace BusfoanBot
 			if (message.Author.IsBot) return Task.CompletedTask;
 
 			if (message.Content.StartsWith("!busfoan"))
-				statechart.Send(new NamedEvent("START"));
+				GetStatechartIn(message.Channel).Send(WakeUp);
 
-			if (message.Content.StartsWith("!einsteigen"))				
-				statechart.Send(JoinPlayer(message));
+			if (message.Content.StartsWith("!einsteigen"))
+				GetStatechartIn(message.Channel).Send(JoinPlayer(message));
 
 			if (message.Content.StartsWith("!aussteigen"))
-				statechart.Send(LeavePlayer(message));
+				GetStatechartIn(message.Channel).Send(LeavePlayer(message));
 
 			if (message.Content.StartsWith("!abfoat"))
 			{
-				statechart.Send(StartGame(message));
-				statechart.Send(NextQuestion(message));
+				GetStatechartIn(message.Channel).Send(StartGame(message));
+				GetStatechartIn(message.Channel).Send(NextQuestion(message));
 			}
 
 			// statechart.NextEvents ...
 			// statechart.OnMarcoStep => Show next events
 
 			return Task.CompletedTask;
+		}
+
+		private static RunningStatechart<BotContext> GetStatechartIn(ISocketMessageChannel channel)
+		{
+			if (statecharts.ContainsKey(channel.Id)) return statecharts[channel.Id];
+
+			BotContext initialContext =	GetInitialContext(channel);
+			StatechartDefinition<BotContext> behaviour = Behaviour(initialContext);
+
+			var parsedStatechart = Parser.Parse(behaviour) as ExecutableStatechart<BotContext>;
+			var statechart = Interpreter.Interpret(parsedStatechart);
+			statechart.OnMacroStep += step =>
+			{
+				Log(new LogMessage(LogSeverity.Info, "StateChart", string.Join(", ", statechart.NextEvents)));
+			};
+
+			// If needed: string viz = behaviour.AsXStateVisualizerV4Definition();
+
+			statecharts.Add(channel.Id, statechart);
+			statechart.Start();
+			return statechart;
 		}
 	}
 }

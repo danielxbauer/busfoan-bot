@@ -3,14 +3,16 @@ using BusfoanBot.Models;
 using Discord.WebSocket;
 using Statecharts.NET.Language;
 using Statecharts.NET.Model;
-using Statecharts.NET.Utilities.Time;
-using static Statecharts.NET.Language.Keywords;
 using static BusfoanBot.BotStateMachineEvents;
+using static Statecharts.NET.Language.Keywords;
 
 namespace BusfoanBot
 {
     public static class BotStateMachineEvents
     {
+        public static NamedEvent WakeUp
+            => Define.Event(nameof(WakeUp));
+
         public static NamedDataEventFactory<SocketMessage> JoinPlayer
             => Define.EventWithData<SocketMessage>(nameof(JoinPlayer));
 
@@ -29,45 +31,53 @@ namespace BusfoanBot
 
     public static class BotStateMachine
     {
-        static void WelcomeMessage()
+        static void WelcomeMessage(BotContext context)
         {
-            Console.WriteLine("Welcome Message");
+            context.SendMessage("Seas leil. Wer wü mit busfoan? (!einsteigen)");
         }
 
         static void AddPlayer(BotContext context, SocketMessage message)
         {
-            var player = new Player(message.Author.Username, message.Author.Discriminator);
+            var player = new Player(message.Author.Id, message.Author.Username);
             bool alreadyAdded = context.Join(player);
 
-            if (!alreadyAdded)
-                message.Channel.SendMessageAsync($"{player.Name} is eingestiegen. San scho {context.AllPlayers.Count} leit im bus!");
-            else
-                message.Channel.SendMessageAsync($"{player.Name} is schon im bus. San scho {context.AllPlayers.Count} leit im bus!");
+            string reply = !alreadyAdded
+                ? $"{player.Name} is eingestiegen. San scho {context.AllPlayers.Count} leit im bus!"
+                : $"{player.Name} is schon im bus. San scho {context.AllPlayers.Count} leit im bus!";
+
+            context.SendMessage(reply);
         }
 
         static void RemovePlayer(BotContext context, SocketMessage message)
         {
-            // TODO
+            bool removedSuccess = context.Kick(message.Author.Id);
+
+            string reply = !removedSuccess
+                ? $"{message.Author.Username} is ausgestiegen. San nu {context.AllPlayers.Count} leit im bus!"
+                : $"{message.Author.Username} woit aussteigen, aber irgendwos is schiefgaunga. Probiers numoi pls";
+
+            context.SendMessage(reply);
         }
 
         static void StartQuestions(BotContext context, SocketMessage message)
         {
-            message.Channel.SendMessageAsync("LOS GEHTSS!");
+            context.SendMessage("LOS GEHTSS!");
         }
 
         static void LogNotEnoughPlayers(BotContext context, SocketMessage message)
         {
-            message.Channel.SendMessageAsync("Nu ned gnuag leit");
+            context.SendMessage("Nu ned gnuag leit");
         }
 
-        public static readonly BotContext InitialContext = new BotContext(new[]
-        {
-            new Question("Rot oder schwarz"),
-            new Question("Drunter, Drüber oder Grenze?")
-        });
+        public static BotContext GetInitialContext(ISocketMessageChannel channel) 
+            => new BotContext(channel, new[]
+            {
+                new Question("Rot oder schwarz"),
+                new Question("Drunter, Drüber oder Grenze?")
+            });
 
-        public static readonly StatechartDefinition<BotContext> Behaviour = Define.Statechart
-            .WithInitialContext(InitialContext)
+        public static StatechartDefinition<BotContext> Behaviour(BotContext botContext) => Define.Statechart
+            .WithInitialContext(botContext)
             .WithRootState(
                 "busfoan"
                     .WithEntryActions(Run(() => Console.WriteLine("NOW THIS WORKS AS WELL 🎉")))
@@ -75,9 +85,9 @@ namespace BusfoanBot
                     .WithInitialState("idle")
                     .WithStates(
                         "idle".WithTransitions(
-                            On("START")
+                            On(WakeUp)
                                 .TransitionTo.Sibling("wait-for-players")
-                                .WithActions(Run(WelcomeMessage))),
+                                .WithActions<BotContext>(Run<BotContext>(WelcomeMessage))),
                         "wait-for-players".WithTransitions(
                             //Ignore("EXIT"),
                             //After(20.Seconds()).TransitionTo // Timeout for not answering..
