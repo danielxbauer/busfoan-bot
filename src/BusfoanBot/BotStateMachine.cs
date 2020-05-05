@@ -5,9 +5,28 @@ using Statecharts.NET.Language;
 using Statecharts.NET.Model;
 using Statecharts.NET.Utilities.Time;
 using static Statecharts.NET.Language.Keywords;
+using static BusfoanBot.BotStateMachineEvents;
 
 namespace BusfoanBot
 {
+    public static class BotStateMachineEvents
+    {
+        public static NamedDataEventFactory<SocketMessage> JoinPlayer
+            => Define.EventWithData<SocketMessage>(nameof(JoinPlayer));
+
+        public static NamedDataEventFactory<SocketMessage> LeavePlayer
+            => Define.EventWithData<SocketMessage>(nameof(LeavePlayer));
+
+        public static NamedDataEventFactory<SocketMessage> StartGame
+            => Define.EventWithData<SocketMessage>(nameof(StartGame));
+
+        public static NamedDataEventFactory<SocketMessage> NextQuestion
+            => Define.EventWithData<SocketMessage>(nameof(NextQuestion));
+
+        public static NamedDataEventFactory<SocketMessage> NextPlayer
+            => Define.EventWithData<SocketMessage>(nameof(NextPlayer));
+    }
+
     public static class BotStateMachine
     {
         static void WelcomeMessage()
@@ -17,10 +36,13 @@ namespace BusfoanBot
 
         static void AddPlayer(BotContext context, SocketMessage message)
         {
-            var player = new Player(message.Author.Username);
-            context.Players.Add(player);
+            var player = new Player(message.Author.Username, message.Author.Discriminator);
+            bool alreadyAdded = context.Join(player);
 
-            message.Channel.SendMessageAsync($"{player.Name} is eingestiegen. San scho {context.Players.Count} leit im bus!");
+            if (!alreadyAdded)
+                message.Channel.SendMessageAsync($"{player.Name} is eingestiegen. San scho {context.AllPlayers.Count} leit im bus!");
+            else
+                message.Channel.SendMessageAsync($"{player.Name} is schon im bus. San scho {context.AllPlayers.Count} leit im bus!");
         }
 
         static void RemovePlayer(BotContext context, SocketMessage message)
@@ -38,20 +60,14 @@ namespace BusfoanBot
             message.Channel.SendMessageAsync("Nu ned gnuag leit");
         }
 
-        static bool AreEnoughPlayers(BotContext context)
-            => context.Players.Count >= 2;
-
-        public static NamedDataEventFactory<SocketMessage> StartGame
-            => Define.EventWithData<SocketMessage>("START-GAME");
-
-        public static NamedDataEventFactory<SocketMessage> JoinPlayer 
-            => Define.EventWithData<SocketMessage>("JOIN");
-
-        public static NamedDataEventFactory<SocketMessage> LeavePlayer
-            => Define.EventWithData<SocketMessage>("LEAVE");
+        public static readonly BotContext InitialContext = new BotContext(new[]
+        {
+            new Question("Rot oder schwarz"),
+            new Question("Drunter, Drüber oder Grenze?")
+        });
 
         public static readonly StatechartDefinition<BotContext> Behaviour = Define.Statechart
-            .WithInitialContext(new BotContext())
+            .WithInitialContext(InitialContext)
             .WithRootState(
                 "busfoan"
                     .WithEntryActions(Run(() => Console.WriteLine("NOW THIS WORKS AS WELL 🎉")))
@@ -73,18 +89,42 @@ namespace BusfoanBot
                             On(LeavePlayer)
                                 .TransitionTo.Self
                                 .WithActions<BotContext>(Run<BotContext, SocketMessage>(RemovePlayer)),
-                            On(StartGame).If<BotContext>(AreEnoughPlayers)
-                                .TransitionTo.Sibling("question")
+                            On(StartGame).If<BotContext>(c => c.AreEnoughPlayers)
+                                .TransitionTo.Sibling("asking")
                                 .WithActions(Run<BotContext, SocketMessage>(StartQuestions)),
                             On(StartGame)
                                 .TransitionTo.Self
                                 .WithActions<BotContext>(Run<BotContext, SocketMessage>(LogNotEnoughPlayers))),
-                        "question"
-                            .WithEntryActions(Run(() => Console.WriteLine("start questions"))),
+                        "asking"
+                            .WithTransitions(
+                                On(NextQuestion).If<BotContext>(c => c.AreQuestionsLeft)
+                                    .TransitionTo.Child("question"),
+                                On(NextQuestion)
+                                    .TransitionTo.Sibling("final"))
+                            .AsCompound()
+                            .WithInitialState("question")
+                            .WithStates(
+                                "question"
+                                    ////.WithTransitions(
+                                    ////    Immediately.If<BotContext>(IsQuestionLeft)
+                                    ////        .TransitionTo.Child("player")
+                                    ////        .WithActions(Run<BotContext, SocketMessage>(SelectNextQuestion)),
+                                    ////    Immediately
+                                    ////        .TransitionTo.Sibling("NO_MORE_QUESTION"))
+                                    .AsCompound()
+                                    .WithInitialState("player")
+                                    .WithStates(
+                                        "player")),
                         //Immediately.If(/* question left */)
                         //    .TransitionTo.Sibling("xyz")
                         //    .WithActions(/* select next question */),
                         // Immediately.TransitionTo.Sibling("EXIT")
                         "final".AsFinal()));
+
+        private static void SelectNextQuestion(BotContext context, SocketMessage message)
+        {
+            Question activeQuestion = context.Questions.Peek();
+            message.Channel.SendMessageAsync(activeQuestion.Text);
+        }
     }
 }

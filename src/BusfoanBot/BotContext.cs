@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using BusfoanBot.Models;
@@ -9,12 +10,9 @@ namespace BusfoanBot
 {
     public class BotContext : IContext<BotContext>, IXStateSerializable
     {
-        public List<Question> Questions { get; } = new List<Question>();
-        public Question ActiveQuestion { get; private set; }
-        public int ActiveQuestionIndex { get; private set; } = -1;
-
-        public List<Player> Players { get; } = new List<Player>();
-        public Player ActivePlayer { get; }
+        public ImmutableList<Player> AllPlayers { get; private set; }
+        public ImmutableStack<Question> Questions { get; }
+        public ImmutableStack<Player> Players { get; }
 
         public ObjectValue AsJSObject()
             => new ObjectValue(Enumerable.Empty<JSProperty>());
@@ -24,12 +22,24 @@ namespace BusfoanBot
         public bool Equals([AllowNull] BotContext other) 
             => true; // TODO: not needed
 
-        public void SelectNextQuestion()
+        public BotContext(
+            IEnumerable<Question> questions)
         {
-            ActiveQuestionIndex++;
-            ActiveQuestion = ActiveQuestionIndex < Questions.Count
-                ? Questions[ActiveQuestionIndex]
-                : Questions.First();
+            AllPlayers = ImmutableList<Player>.Empty;
+            Questions = ImmutableStack.CreateRange(questions.Reverse());
+            Players = ImmutableStack<Player>.Empty;
         }
+
+        public bool Join(Player player)
+        {
+            bool alreadyAdded = this.AllPlayers.Any(p => p.Id == player.Id);
+            if (!alreadyAdded)
+                AllPlayers = AllPlayers.Add(player);
+
+            return alreadyAdded;
+        }
+
+        public bool AreQuestionsLeft => !Questions.IsEmpty;
+        public bool AreEnoughPlayers => AllPlayers.Count >= 1; // TODO: check >= 2 && <= 12
     }
 }
