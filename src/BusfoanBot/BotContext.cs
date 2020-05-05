@@ -34,7 +34,6 @@ namespace BusfoanBot
 
         public ObjectValue AsJSObject() => new ObjectValue(Enumerable.Empty<JSProperty>());
         public BotContext CopyDeep() => this;
-        public bool Equals([AllowNull] BotContext other) => true; // TODO: not needed
 
         public bool Join(Player player)
         {

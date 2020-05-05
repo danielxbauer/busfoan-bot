@@ -114,38 +114,23 @@ namespace BusfoanBot
                             .AsCompound()
                             .WithInitialState("question")
                             .WithStates(
-                                "question"
-                                    .WithTransitions(
-                                        Immediately.If<BotContext>(c => c.AreQuestionsLeft)
-                                            .TransitionTo.Child("player")
-                                            .WithAction(c => c.SelectNextQuestion()))//,
-                                        ////Immediately.TransitionTo.Self
-                                        ////     .WithActions(Raise())) // TODO
-                                    .AsCompound()
-                                    .WithInitialState("player")
-                                    .WithStates(
-                                        "player"
-                                            .WithTransitions(
-                                                Immediately.If<BotContext>(c => c.ArePlayersLeft)
-                                                    .TransitionTo.Child("waiting")
-                                                    .WithActions(
-                                                        Run<BotContext>(c => c.SelectNextPlayer()),
-                                                        Run<BotContext>(AskQuestion))//,
-                                                ////Immediately
-                                                ////    .TransitionTo.Self
-                                                ////    .WithActions<BotContext>(_ =>
-                                                ////    {
-                                                ////        return Raise(NextQuestion);
-                                                ////    }))
-                                                )
-                                            .AsCompound()
-                                            .WithInitialState("waiting")
-                                            .WithStates(
-                                                "waiting"
-                                                    .WithTransitions(
-                                                        On("CHECK").TransitionTo.Self
-                                                            .WithActions<BotContext>(Raise(NextQuestion)))
-                                                    ))),
+                                "question".WithTransitions(
+                                    Immediately.If<BotContext>(c => c.AreQuestionsLeft)
+                                        .TransitionTo.Sibling("player")
+                                        .WithAction(c => c.SelectNextQuestion()),
+                                    Immediately.TransitionTo.Absolute("busfoan", "final")
+                                        /*.TransitionTo.Self.WithActions(Send(NextQuestion))*/),
+                                "player".WithTransitions(
+                                    Immediately.If<BotContext>(c => c.ArePlayersLeft)
+                                        .TransitionTo.Sibling("waiting")
+                                        .WithActions(
+                                            Run<BotContext>(c => c.SelectNextPlayer()),
+                                            Run<BotContext>(AskQuestion)),
+                                    Immediately
+                                        .TransitionTo.Sibling("question")
+                                        .WithActions(Log("NO MORE PLAYER"))),
+                                "waiting".WithTransitions(
+                                    On("CHECK").TransitionTo.Sibling("player"))),
                         "final".AsFinal()));
 
         private static void AskQuestion(BotContext context)

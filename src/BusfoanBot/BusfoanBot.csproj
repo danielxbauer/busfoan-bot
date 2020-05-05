@@ -7,8 +7,18 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0" />
-    <PackageReference Include="Statecharts.NET.Language" Version="1.0.0" />
-    <PackageReference Include="Statecharts.NET.XState" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Statecharts.NET.Core">
+      <HintPath>..\..\..\Statecharts.NET\Statecharts.NET.Core\bin\Debug\netstandard2.0\Statecharts.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Statecharts.NET.Language">
+      <HintPath>..\..\..\Statecharts.NET\Statecharts.NET.Language\bin\Debug\netstandard2.0\Statecharts.NET.Language.dll</HintPath>
+    </Reference>
+    <Reference Include="Statecharts.NET.XState">
+      <HintPath>..\..\..\Statecharts.NET\Statecharts.NET.XState\bin\Debug\netstandard2.0\Statecharts.NET.XState.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

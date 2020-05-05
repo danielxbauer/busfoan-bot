@@ -3,6 +3,7 @@ using Discord;
 using Discord.WebSocket;
 using Statecharts.NET;
 using Statecharts.NET.Model;
+using Statecharts.NET.XState;
 using static BusfoanBot.BotStateMachine;
 using static BusfoanBot.BotStateMachineEvents;
 using Task = System.Threading.Tasks.Task;
@@ -50,9 +51,10 @@ namespace BusfoanBot
 				GetStatechartIn(message.Channel).Send(LeavePlayer(message));
 
 			if (message.Content.StartsWith("!abfoat"))
-			{
-				GetStatechartIn(message.Channel).Send(StartGame);				
-			}
+				GetStatechartIn(message.Channel).Send(StartGame);
+
+			if (message.Content.StartsWith("!1"))
+				GetStatechartIn(message.Channel).Send(new NamedEvent("CHECK"));
 
 			return Task.CompletedTask;
 		}
@@ -71,7 +73,7 @@ namespace BusfoanBot
 				Log(new LogMessage(LogSeverity.Info, "StateChart", string.Join(", ", statechart.NextEvents)));
 			};
 
-			// If needed: string viz = behaviour.AsXStateVisualizerV4Definition();
+			string viz = behaviour.AsXStateVisualizerV4Definition();
 
 			statecharts.Add(channel.Id, statechart);
 			statechart.Start();
