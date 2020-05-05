@@ -25,8 +25,12 @@ namespace BusfoanBot
         public ISocketMessageChannel Channel { get; set; }
 
         public ImmutableList<Player> AllPlayers { get; private set; }
-        public ImmutableStack<Question> Questions { get; }
-        public ImmutableStack<Player> Players { get; }
+        
+        public ImmutableStack<Question> Questions { get; private set; }
+        public Question ActiveQuestion { get; private set; }
+
+        public ImmutableStack<Player> Players { get; private set; }
+        public Player ActivePlayer { get; private set; }
 
         public ObjectValue AsJSObject() => new ObjectValue(Enumerable.Empty<JSProperty>());
         public BotContext CopyDeep() => this;
@@ -34,7 +38,7 @@ namespace BusfoanBot
 
         public bool Join(Player player)
         {
-            bool alreadyAdded = this.AllPlayers.Any(p => p.Id == player.Id);
+            bool alreadyAdded = AllPlayers.Any(p => p.Id == player.Id);
             if (!alreadyAdded)
                 AllPlayers = AllPlayers.Add(player);
 
@@ -53,5 +57,19 @@ namespace BusfoanBot
 
         public bool AreQuestionsLeft => !Questions.IsEmpty;
         public bool AreEnoughPlayers => AllPlayers.Count >= 1; // TODO: check >= 2 && <= 12
+        public bool ArePlayersLeft => !Players.IsEmpty;
+
+        internal void SelectNextQuestion()
+        {
+            ActiveQuestion = Questions.Peek();
+            Questions = Questions.Pop();
+            Players = ImmutableStack.CreateRange(AllPlayers);
+        }
+
+        internal void SelectNextPlayer()
+        {
+            ActivePlayer = Players.Peek();
+            Players = Players.Pop();
+        }
     }
 }

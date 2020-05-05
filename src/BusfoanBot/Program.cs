@@ -51,12 +51,8 @@ namespace BusfoanBot
 
 			if (message.Content.StartsWith("!abfoat"))
 			{
-				GetStatechartIn(message.Channel).Send(StartGame(message));
-				GetStatechartIn(message.Channel).Send(NextQuestion(message));
+				GetStatechartIn(message.Channel).Send(StartGame);				
 			}
-
-			// statechart.NextEvents ...
-			// statechart.OnMarcoStep => Show next events
 
 			return Task.CompletedTask;
 		}

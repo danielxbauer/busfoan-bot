@@ -1,8 +1,10 @@
 ﻿using System;
+using BusfoanBot.Extensions;
 using BusfoanBot.Models;
 using Discord.WebSocket;
 using Statecharts.NET.Language;
 using Statecharts.NET.Model;
+using Statecharts.NET.Utilities;
 using static BusfoanBot.BotStateMachineEvents;
 using static Statecharts.NET.Language.Keywords;
 
@@ -19,11 +21,11 @@ namespace BusfoanBot
         public static NamedDataEventFactory<SocketMessage> LeavePlayer
             => Define.EventWithData<SocketMessage>(nameof(LeavePlayer));
 
-        public static NamedDataEventFactory<SocketMessage> StartGame
-            => Define.EventWithData<SocketMessage>(nameof(StartGame));
+        public static NamedEvent StartGame
+            => Define.Event(nameof(StartGame));
 
-        public static NamedDataEventFactory<SocketMessage> NextQuestion
-            => Define.EventWithData<SocketMessage>(nameof(NextQuestion));
+        public static NamedEvent NextQuestion
+            => Define.Event(nameof(NextQuestion));
 
         public static NamedDataEventFactory<SocketMessage> NextPlayer
             => Define.EventWithData<SocketMessage>(nameof(NextPlayer));
@@ -59,12 +61,12 @@ namespace BusfoanBot
             context.SendMessage(reply);
         }
 
-        static void StartQuestions(BotContext context, SocketMessage message)
+        static void LogGameStartMessage(BotContext context)
         {
             context.SendMessage("LOS GEHTSS!");
         }
 
-        static void LogNotEnoughPlayers(BotContext context, SocketMessage message)
+        static void LogNotEnoughPlayers(BotContext context)
         {
             context.SendMessage("Nu ned gnuag leit");
         }
@@ -93,19 +95,17 @@ namespace BusfoanBot
                             //After(20.Seconds()).TransitionTo // Timeout for not answering..
                             On(JoinPlayer)
                                 .TransitionTo.Self
-                                .WithActions<BotContext>(
-                                    Log("AddPlayer"), 
-                                    Run<BotContext, SocketMessage>(AddPlayer)),
+                                .WithAction<BotContext, SocketMessage>(AddPlayer),
                             On(LeavePlayer)
                                 .TransitionTo.Self
-                                .WithActions<BotContext>(Run<BotContext, SocketMessage>(RemovePlayer)),
+                                .WithAction<BotContext, SocketMessage>(RemovePlayer),
                             On(StartGame).If<BotContext>(c => c.AreEnoughPlayers)
-                                .TransitionTo.Sibling("asking")
-                                .WithActions(Run<BotContext, SocketMessage>(StartQuestions)),
+                                .TransitionTo.Sibling("asking"),
                             On(StartGame)
                                 .TransitionTo.Self
-                                .WithActions<BotContext>(Run<BotContext, SocketMessage>(LogNotEnoughPlayers))),
+                                .WithActions<BotContext>(Run<BotContext>(LogNotEnoughPlayers))),
                         "asking"
+                            .WithEntryActions<BotContext>(Run<BotContext>(LogGameStartMessage))
                             .WithTransitions(
                                 On(NextQuestion).If<BotContext>(c => c.AreQuestionsLeft)
                                     .TransitionTo.Child("question"),
@@ -115,26 +115,42 @@ namespace BusfoanBot
                             .WithInitialState("question")
                             .WithStates(
                                 "question"
-                                    ////.WithTransitions(
-                                    ////    Immediately.If<BotContext>(IsQuestionLeft)
-                                    ////        .TransitionTo.Child("player")
-                                    ////        .WithActions(Run<BotContext, SocketMessage>(SelectNextQuestion)),
-                                    ////    Immediately
-                                    ////        .TransitionTo.Sibling("NO_MORE_QUESTION"))
+                                    .WithTransitions(
+                                        Immediately.If<BotContext>(c => c.AreQuestionsLeft)
+                                            .TransitionTo.Child("player")
+                                            .WithAction(c => c.SelectNextQuestion()))//,
+                                        ////Immediately.TransitionTo.Self
+                                        ////     .WithActions(Raise())) // TODO
                                     .AsCompound()
                                     .WithInitialState("player")
                                     .WithStates(
-                                        "player")),
-                        //Immediately.If(/* question left */)
-                        //    .TransitionTo.Sibling("xyz")
-                        //    .WithActions(/* select next question */),
-                        // Immediately.TransitionTo.Sibling("EXIT")
+                                        "player"
+                                            .WithTransitions(
+                                                Immediately.If<BotContext>(c => c.ArePlayersLeft)
+                                                    .TransitionTo.Child("waiting")
+                                                    .WithActions(
+                                                        Run<BotContext>(c => c.SelectNextPlayer()),
+                                                        Run<BotContext>(AskQuestion))//,
+                                                ////Immediately
+                                                ////    .TransitionTo.Self
+                                                ////    .WithActions<BotContext>(_ =>
+                                                ////    {
+                                                ////        return Raise(NextQuestion);
+                                                ////    }))
+                                                )
+                                            .AsCompound()
+                                            .WithInitialState("waiting")
+                                            .WithStates(
+                                                "waiting"
+                                                    .WithTransitions(
+                                                        On("CHECK").TransitionTo.Self
+                                                            .WithActions<BotContext>(Raise(NextQuestion)))
+                                                    ))),
                         "final".AsFinal()));
 
-        private static void SelectNextQuestion(BotContext context, SocketMessage message)
+        private static void AskQuestion(BotContext context)
         {
-            Question activeQuestion = context.Questions.Peek();
-            message.Channel.SendMessageAsync(activeQuestion.Text);
+            context.Channel.SendMessageAsync($"{context.ActivePlayer.Name}: {context.ActiveQuestion.Text}");
         }
     }
 }
