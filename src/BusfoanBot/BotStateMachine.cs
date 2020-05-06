@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using BusfoanBot.Extensions;
 using BusfoanBot.Models;
+using Discord;
 using Discord.WebSocket;
 using Statecharts.NET.Language;
 using Statecharts.NET.Model;
@@ -25,36 +28,37 @@ namespace BusfoanBot
         public static NamedEvent StartGame
             => Define.Event(nameof(StartGame));
 
-        public static NamedEvent NextQuestion
-            => Define.Event(nameof(NextQuestion));
-
         public static NamedDataEventFactory<SocketMessage> NextPlayer
             => Define.EventWithData<SocketMessage>(nameof(NextPlayer));
 
         public static NamedDataEventFactory<SocketMessage> CheckCard
             => Define.EventWithData<SocketMessage>(nameof(CheckCard));
+
+        public static NamedDataEventFactory<SocketReaction> ThumbUp
+            => Define.EventWithData<SocketReaction>(nameof(ThumbUp));
     }
 
     public static class BotStateMachine
     {
-        static void WelcomeMessage(BotContext context)
+        static async Task WelcomeMessage(BotContext context)
         {
-            context.SendMessage("Seas leil. Wer wü mit busfoan? (!einsteigen)");
+            await context.SendReactableMessage("Seas leil. Wer wü mit busfoan? (!einsteigen)",
+                Emotes.ThumbsUp);
         }
 
-        static void AddPlayer(BotContext context, SocketMessage message)
+        static async Task AddPlayer(BotContext context, IUser author)
         {
-            var player = new Player(message.Author.Id, message.Author.Username);
+            var player = new Player(author.Id, author.Username);
             bool alreadyAdded = context.Join(player);
 
             string reply = !alreadyAdded
                 ? $"{player.Name} is eingestiegen. San scho {context.AllPlayers.Count} leit im bus!"
                 : $"{player.Name} is schon im bus. San scho {context.AllPlayers.Count} leit im bus!";
 
-            context.SendMessage(reply);
+            await context.SendMessage(reply);
         }
 
-        static void RemovePlayer(BotContext context, SocketMessage message)
+        static async Task RemovePlayer(BotContext context, SocketMessage message)
         {
             bool removedSuccess = context.Kick(message.Author.Id);
 
@@ -62,24 +66,25 @@ namespace BusfoanBot
                 ? $"{message.Author.Username} is ausgestiegen. San nu {context.AllPlayers.Count} leit im bus!"
                 : $"{message.Author.Username} woit aussteigen, aber irgendwos is schiefgaunga. Probiers numoi pls";
 
-            context.SendMessage(reply);
+            await context.SendMessage(reply);
         }
 
-        static void LogGameStartMessage(BotContext context)
+        // TODO: put actions somewhere else?!
+        static async Task LogGameStartMessage(BotContext context)
         {
-            context.SendMessage("LOS GEHTSS!");
+            await context.SendMessage("LOS GEHTSS!");
         }
 
-        static void LogNotEnoughPlayers(BotContext context)
+        static async Task LogNotEnoughPlayers(BotContext context)
         {
-            context.SendMessage("Nu ned gnuag leit");
+            await context.SendMessage("Nu ned gnuag leit");
         }
 
         public static BotContext GetInitialContext(ISocketMessageChannel channel) 
             => new BotContext(channel, new[]
             {
-                new Question("Rot oder schwarz"),
-                new Question("Drunter, Drüber oder Grenze?")
+                Question.Create($"Rot {Emotes.ThumbsUp} oder schwarz {Emotes.Grin} ?", Emotes.ThumbsUp, Emotes.Grin),
+                Question.Create("Drunter, Drüber oder Grenze?", Emotes.ThumbsUp)
             });
 
         public static StatechartDefinition<BotContext> Behaviour(BotContext botContext) => Define.Statechart
@@ -93,30 +98,31 @@ namespace BusfoanBot
                         "idle".WithTransitions(
                             On(WakeUp)
                                 .TransitionTo.Sibling("wait-for-players")
-                                .WithActions<BotContext>(Run<BotContext>(WelcomeMessage))),
+                                .WithActions<BotContext>(Run<BotContext>(c => Task.WaitAll(WelcomeMessage(c))))),
                         "wait-for-players".WithTransitions(
                             //Ignore("EXIT"),
                             //After(20.Seconds()).TransitionTo // Timeout for not answering..
                             On(JoinPlayer)
                                 .TransitionTo.Self
-                                .WithRunAction<BotContext, SocketMessage>(AddPlayer),
+                                .WithActions<BotContext>(RunIn<SocketMessage>((c, m) => AddPlayer(c, m.Author))),
+                            // TODO: check if removed!!
+                            On(ThumbUp).If<BotContext>((context, reaction) => context.LastBotMessage != null 
+                                && context.LastBotMessage.Id == reaction.MessageId 
+                                && !reaction.User.Value.IsBot)
+                                .TransitionTo.Self
+                                .WithActions(RunIn<SocketReaction>((c, r) => AddPlayer(c, r.User.Value))),
                             On(LeavePlayer)
                                 .TransitionTo.Self
-                                .WithRunAction<BotContext, SocketMessage>(RemovePlayer),
+                                .WithActions<BotContext>(RunIn<SocketMessage>(RemovePlayer)),
                             On(StartGame).If<BotContext>(c => c.AreEnoughPlayers)
                                 .TransitionTo.Sibling("asking"),
                             On(StartGame)
                                 .TransitionTo.Self
-                                .WithActions<BotContext>(Run<BotContext>(LogNotEnoughPlayers))),
+                                .WithActions<BotContext>(RunIn(LogNotEnoughPlayers))),
                         "asking"
                             .WithEntryActions<BotContext>(
-                                Run<BotContext>(LogGameStartMessage),
+                                RunIn(LogGameStartMessage),
                                 Run<BotContext>(context => context.ShuffleCards()))
-                            .WithTransitions(
-                                On(NextQuestion).If<BotContext>(c => c.AreQuestionsLeft)
-                                    .TransitionTo.Child("question"),
-                                On(NextQuestion)
-                                    .TransitionTo.Sibling("final"))
                             .AsCompound()
                             .WithInitialState("question")
                             .WithStates(
@@ -131,29 +137,34 @@ namespace BusfoanBot
                                         .TransitionTo.Sibling("waiting")
                                         .WithActions(
                                             Run<BotContext>(c => c.SelectNextPlayer()),
-                                            Run<BotContext>(AskQuestion)),
+                                            Run<BotContext>(c => Task.WaitAll(AskQuestion(c)))),
                                     Immediately
                                         .TransitionTo.Sibling("question")
                                         .WithActions(Log("NO MORE PLAYER"))),
                                 "waiting".WithTransitions(
                                     On(CheckCard)
                                         .TransitionTo.Sibling("checking")
-                                        .WithActions<BotContext>(Run<BotContext, SocketMessage>(
-                                            (context, message) => context.RevealCardFor(message.Author.Id))),
+                                        .WithActions<BotContext>(RunIn<SocketMessage>((context, message) => context.RevealCardFor(message.Author.Id))),
                                     After(30.Seconds())
                                         .TransitionTo.Sibling("checking")
-                                        .WithActions<BotContext>(Run<BotContext>(
-                                            context => context.RevealCard()))),
+                                        .WithActions<BotContext>(RunIn(context => context.RevealCard()))),
                                 "checking".WithTransitions(
                                     After(1.Seconds())
                                         .TransitionTo.Sibling("player"))),
                         "final"
-                            .WithEntryActions<BotContext>(Run<BotContext>(c => c.SendMessage("So des woas. Bis boid!")))
+                            .WithEntryActions<BotContext>(RunIn(c => c.SendMessage("So des woas. Bis boid!")))
                             .AsFinal()));
 
-        private static void AskQuestion(BotContext context)
+        private static SideEffectAction<BotContext, TData> RunIn<TData>(Func<BotContext, TData, Task> action)
+            => Run<BotContext, TData>((context, message) => Task.WaitAll(action(context, message)));
+                
+        private static SideEffectAction<BotContext> RunIn(Func<BotContext, Task> action)
+            => Run<BotContext>(context => Task.WaitAll(action(context)));
+
+        private static async Task AskQuestion(BotContext context)
         {
-            context.Channel.SendMessageAsync($"{context.ActivePlayer.Name}: {context.ActiveQuestion.Text}");
+            await context.SendReactableMessage($"{context.ActivePlayer.Name}: {context.ActiveQuestion.Text}",
+                context.ActiveQuestion.Emotes.AsEnumerable());
         }
     }
 }

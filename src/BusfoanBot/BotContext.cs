@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using BusfoanBot.Models;
+using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using Statecharts.NET.Interfaces;
 using Statecharts.NET.XState;
@@ -29,6 +32,8 @@ namespace BusfoanBot
         }
 
         public ISocketMessageChannel Channel { get; }
+        public RestUserMessage LastBotMessage { get; private set; }
+
         public ImmutableStack<Card> Cards { get; private set; }
         public IDictionary<ulong, ImmutableList<Card>> PlayerCards { get; }
 
@@ -58,8 +63,20 @@ namespace BusfoanBot
             return AllPlayers.Count - count > 0;
         }
 
-        public void SendMessage(string message)
-            => Channel.SendMessageAsync(message);
+        public async Task<RestUserMessage> SendMessage(string message)
+        {
+            return await Channel.SendMessageAsync(message);
+        }
+
+        public async Task<RestUserMessage> SendReactableMessage(string message, params IEmote[] emotes)
+            => await this.SendReactableMessage(message, emotes.AsEnumerable());
+
+        public async Task<RestUserMessage> SendReactableMessage(string message, IEnumerable<IEmote> emotes)
+        {
+            LastBotMessage = await Channel.SendMessageAsync(message);
+            await LastBotMessage.AddReactionsAsync(emotes.ToArray());
+            return LastBotMessage;
+        }
 
         public bool AreQuestionsLeft => !Questions.IsEmpty;
         public bool AreEnoughPlayers => AllPlayers.Count >= 1; // TODO: check >= 2 && <= 12
@@ -97,19 +114,19 @@ namespace BusfoanBot
             Players = Players.Pop();
         }
 
-        public void RevealCard()
+        public async Task RevealCard()
         {
             if (ActivePlayer != null)
             {
                 Card card = RevealCard(ActivePlayer.Id);
-                SendMessage($"Sorry zlaung gwoat! Karte is: {card}");
+                await SendMessage($"Sorry zlaung gwoat! Karte is: {card}");
             }
         } 
 
-        public void RevealCardFor(ulong player)
+        public async Task RevealCardFor(ulong player)
         {
             Card card = RevealCard(player);
-            SendMessage($"Karte is: {card}");
+            await SendMessage($"Karte is: {card}");
         }
 
         private Card RevealCard(ulong player)

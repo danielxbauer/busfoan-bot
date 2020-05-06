@@ -23,6 +23,7 @@ namespace BusfoanBot
 			client = new DiscordSocketClient();
 			client.Log += Log;
 			client.MessageReceived += MessageReceived;
+            client.ReactionAdded += (_, __, reaction) => ReactionAdded(reaction);
 
 			await client.LoginAsync(TokenType.Bot, token);
 			await client.StartAsync();
@@ -31,7 +32,7 @@ namespace BusfoanBot
 			await Task.Delay(-1);
 		}
 
-		private static Task Log(LogMessage message)
+        private static Task Log(LogMessage message)
 		{
 			System.Console.WriteLine(message.ToString());
 			return Task.CompletedTask;
@@ -55,6 +56,22 @@ namespace BusfoanBot
 
 			if (message.Content.StartsWith("!1"))
 				GetStatechartIn(message.Channel).Send(CheckCard(message));
+
+			// TODO:
+			////if (message.Content.StartsWith("!koatn"))
+			////	GetStatechartIn(message.Channel). .Send(ShowCard(message));
+
+			return Task.CompletedTask;
+		}
+
+		private static Task ReactionAdded(SocketReaction reaction)
+		{
+			if (!statecharts.ContainsKey(reaction.Channel.Id)) return Task.CompletedTask;
+
+			var statechart = GetStatechartIn(reaction.Channel);
+
+			if (reaction.Emote.Name == Emotes.ThumbsUp.Name)
+				statechart.Send(ThumbUp(reaction));
 
 			return Task.CompletedTask;
 		}
