@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Statecharts.NET.Language;
 using Statecharts.NET.Model;
 using Statecharts.NET.Utilities;
+using Statecharts.NET.Utilities.Time;
 using static BusfoanBot.BotStateMachineEvents;
 using static Statecharts.NET.Language.Keywords;
 
@@ -29,6 +30,9 @@ namespace BusfoanBot
 
         public static NamedDataEventFactory<SocketMessage> NextPlayer
             => Define.EventWithData<SocketMessage>(nameof(NextPlayer));
+
+        public static NamedDataEventFactory<SocketMessage> CheckCard
+            => Define.EventWithData<SocketMessage>(nameof(CheckCard));
     }
 
     public static class BotStateMachine
@@ -120,8 +124,8 @@ namespace BusfoanBot
                                     Immediately.If<BotContext>(c => c.AreQuestionsLeft)
                                         .TransitionTo.Sibling("player")
                                         .WithAction(c => c.SelectNextQuestion()),
-                                    Immediately.TransitionTo.Absolute("busfoan", "final")
-                                        /*.TransitionTo.Self.WithActions(Send(NextQuestion))*/),
+                                    Immediately
+                                        .TransitionTo.Absolute("busfoan", "final")),
                                 "player".WithTransitions(
                                     Immediately.If<BotContext>(c => c.ArePlayersLeft)
                                         .TransitionTo.Sibling("waiting")
@@ -132,8 +136,20 @@ namespace BusfoanBot
                                         .TransitionTo.Sibling("question")
                                         .WithActions(Log("NO MORE PLAYER"))),
                                 "waiting".WithTransitions(
-                                    On("CHECK").TransitionTo.Sibling("player"))),
-                        "final".AsFinal()));
+                                    On(CheckCard)
+                                        .TransitionTo.Sibling("checking")
+                                        .WithActions<BotContext>(Run<BotContext, SocketMessage>(
+                                            (context, message) => context.RevealCardFor(message.Author.Id))),
+                                    After(30.Seconds())
+                                        .TransitionTo.Sibling("checking")
+                                        .WithActions<BotContext>(Run<BotContext>(
+                                            context => context.RevealCard()))),
+                                "checking".WithTransitions(
+                                    After(1.Seconds())
+                                        .TransitionTo.Sibling("player"))),
+                        "final"
+                            .WithEntryActions<BotContext>(Run<BotContext>(c => c.SendMessage("So des woas. Bis boid!")))
+                            .AsFinal()));
 
         private static void AskQuestion(BotContext context)
         {

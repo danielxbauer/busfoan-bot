@@ -54,7 +54,7 @@ namespace BusfoanBot
 				GetStatechartIn(message.Channel).Send(StartGame);
 
 			if (message.Content.StartsWith("!1"))
-				GetStatechartIn(message.Channel).Send(new NamedEvent("CHECK"));
+				GetStatechartIn(message.Channel).Send(CheckCard(message));
 
 			return Task.CompletedTask;
 		}

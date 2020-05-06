@@ -24,10 +24,13 @@ namespace BusfoanBot
             AllPlayers = ImmutableList<Player>.Empty;
             Questions = ImmutableStack.CreateRange(questions.Reverse());
             Players = ImmutableStack<Player>.Empty;
+            Cards = ImmutableStack<Card>.Empty;
+            PlayerCards = new Dictionary<ulong, ImmutableList<Card>>();
         }
 
-        public ISocketMessageChannel Channel { get; set; }
-        public ImmutableStack<Card> Cards { get; set; }
+        public ISocketMessageChannel Channel { get; }
+        public ImmutableStack<Card> Cards { get; private set; }
+        public IDictionary<ulong, ImmutableList<Card>> PlayerCards { get; }
 
         public ImmutableStack<Question> Questions { get; private set; }
         public Question ActiveQuestion { get; private set; }
@@ -92,6 +95,34 @@ namespace BusfoanBot
         {
             ActivePlayer = Players.Peek();
             Players = Players.Pop();
+        }
+
+        public void RevealCard()
+        {
+            if (ActivePlayer != null)
+            {
+                Card card = RevealCard(ActivePlayer.Id);
+                SendMessage($"Sorry zlaung gwoat! Karte is: {card}");
+            }
+        } 
+
+        public void RevealCardFor(ulong player)
+        {
+            Card card = RevealCard(player);
+            SendMessage($"Karte is: {card}");
+        }
+
+        private Card RevealCard(ulong player)
+        {
+            Card card = Cards.Peek();
+            Cards = Cards.Pop();
+
+            if (!PlayerCards.ContainsKey(player))
+                PlayerCards.Add(player, ImmutableList.CreateRange(new[] { card }));
+            else
+                PlayerCards[player].Add(card);
+
+            return card;
         }
     }
 }

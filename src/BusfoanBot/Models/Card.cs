@@ -19,7 +19,7 @@ namespace BusfoanBot.Models
         }
 
         public string Type { get; }
-
         public CardSymbol Symbol { get; }
+        public override string ToString() => $"{Type}{Symbol}";
     }
 }
