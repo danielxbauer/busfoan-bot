@@ -76,7 +76,7 @@ namespace BusfoanBot
 			string viz = behaviour.AsXStateVisualizerV4Definition();
 
 			statecharts.Add(channel.Id, statechart);
-			statechart.Start();
+			statechart.RunAsync();
 			return statechart;
 		}
 	}

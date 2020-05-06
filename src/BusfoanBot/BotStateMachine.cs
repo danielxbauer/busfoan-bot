@@ -95,17 +95,19 @@ namespace BusfoanBot
                             //After(20.Seconds()).TransitionTo // Timeout for not answering..
                             On(JoinPlayer)
                                 .TransitionTo.Self
-                                .WithAction<BotContext, SocketMessage>(AddPlayer),
+                                .WithRunAction<BotContext, SocketMessage>(AddPlayer),
                             On(LeavePlayer)
                                 .TransitionTo.Self
-                                .WithAction<BotContext, SocketMessage>(RemovePlayer),
+                                .WithRunAction<BotContext, SocketMessage>(RemovePlayer),
                             On(StartGame).If<BotContext>(c => c.AreEnoughPlayers)
                                 .TransitionTo.Sibling("asking"),
                             On(StartGame)
                                 .TransitionTo.Self
                                 .WithActions<BotContext>(Run<BotContext>(LogNotEnoughPlayers))),
                         "asking"
-                            .WithEntryActions<BotContext>(Run<BotContext>(LogGameStartMessage))
+                            .WithEntryActions<BotContext>(
+                                Run<BotContext>(LogGameStartMessage),
+                                Run<BotContext>(context => context.ShuffleCards()))
                             .WithTransitions(
                                 On(NextQuestion).If<BotContext>(c => c.AreQuestionsLeft)
                                     .TransitionTo.Child("question"),

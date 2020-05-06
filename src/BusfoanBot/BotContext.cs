@@ -12,10 +12,14 @@ namespace BusfoanBot
 {
     public class BotContext : IContext<BotContext>, IXStateSerializable
     {
+        private readonly Random random;
+
         public BotContext(
             ISocketMessageChannel channel,
             IEnumerable<Question> questions)
         {
+            random = new Random();
+
             Channel = channel ?? throw new ArgumentNullException(nameof(channel));
             AllPlayers = ImmutableList<Player>.Empty;
             Questions = ImmutableStack.CreateRange(questions.Reverse());
@@ -23,12 +27,12 @@ namespace BusfoanBot
         }
 
         public ISocketMessageChannel Channel { get; set; }
+        public ImmutableStack<Card> Cards { get; set; }
 
-        public ImmutableList<Player> AllPlayers { get; private set; }
-        
         public ImmutableStack<Question> Questions { get; private set; }
         public Question ActiveQuestion { get; private set; }
 
+        public ImmutableList<Player> AllPlayers { get; private set; }
         public ImmutableStack<Player> Players { get; private set; }
         public Player ActivePlayer { get; private set; }
 
@@ -57,6 +61,25 @@ namespace BusfoanBot
         public bool AreQuestionsLeft => !Questions.IsEmpty;
         public bool AreEnoughPlayers => AllPlayers.Count >= 1; // TODO: check >= 2 && <= 12
         public bool ArePlayersLeft => !Players.IsEmpty;
+
+        public void ShuffleCards()
+        {
+            var shuffledCards = GenerateCards().OrderBy(x => random.Next());
+            Cards = ImmutableStack.CreateRange<Card>(shuffledCards);
+        }
+
+        private IEnumerable<Card> GenerateCards()
+        {
+            return new[] { CardSymbol.Club, CardSymbol.Spade, CardSymbol.Diamond, CardSymbol.Heart }
+                .SelectMany(symbol => GenerateCards(symbol));
+        }
+
+        private IEnumerable<Card> GenerateCards(CardSymbol symbol)
+        {
+            return "2 3 4 5 6 7 8 9 10 J Q K A"
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(type => new Card(type, symbol));
+        }
 
         internal void SelectNextQuestion()
         {

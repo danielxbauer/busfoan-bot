@@ -14,7 +14,7 @@ namespace BusfoanBot.Extensions
             return builder.WithActions(Run<TContext>(action));
         }
 
-        public static ContextDataUnguardedWithActions<TContext, TEventData> WithAction<TContext, TEventData>(
+        public static ContextDataUnguardedWithActions<TContext, TEventData> WithRunAction<TContext, TEventData>(
             this DataUnguardedWithTarget<TEventData> builder,
             System.Action<TContext, TEventData> action)
             where TContext : IContext<TContext>

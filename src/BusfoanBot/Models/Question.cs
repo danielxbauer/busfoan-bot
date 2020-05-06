@@ -9,6 +9,6 @@ namespace BusfoanBot.Models
             Text = text ?? throw new ArgumentNullException(nameof(text));
         }
 
-        public string Text { get; }
+        public string Text { get; set; }
     }
 }
