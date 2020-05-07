@@ -9,6 +9,7 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Statecharts.NET.Interfaces;
+using Statecharts.NET.Utilities;
 using Statecharts.NET.XState;
 
 namespace BusfoanBot
@@ -32,7 +33,7 @@ namespace BusfoanBot
         }
 
         public ISocketMessageChannel Channel { get; }
-        public RestUserMessage LastBotMessage { get; private set; }
+        public RestUserMessage LastReactableMessage { get; set; }
 
         public ImmutableStack<Card> Cards { get; private set; }
         public IDictionary<ulong, ImmutableList<Card>> PlayerCards { get; }
@@ -68,14 +69,22 @@ namespace BusfoanBot
             return await Channel.SendMessageAsync(message);
         }
 
-        public async Task<RestUserMessage> SendReactableMessage(string message, params IEmote[] emotes)
+        public async Task<RestUserMessage> SendReactableMessage(Embed message, params IEmote[] emotes)
             => await this.SendReactableMessage(message, emotes.AsEnumerable());
 
-        public async Task<RestUserMessage> SendReactableMessage(string message, IEnumerable<IEmote> emotes)
+        public async Task<RestUserMessage> SendReactableMessage(Embed message, IEnumerable<IEmote> emotes)
         {
-            LastBotMessage = await Channel.SendMessageAsync(message);
-            await LastBotMessage.AddReactionsAsync(emotes.ToArray());
-            return LastBotMessage;
+            LastReactableMessage = await Channel.SendMessageAsync(null, embed: message);
+            await LastReactableMessage.AddReactionsAsync(emotes.ToArray());
+            return LastReactableMessage;
+        }
+
+        public async Task UpdateMessage(RestUserMessage message, Embed content)
+        {
+            await message.ModifyAsync(prop =>
+            {
+                prop.Embed = content;
+            });
         }
 
         public bool AreQuestionsLeft => !Questions.IsEmpty;

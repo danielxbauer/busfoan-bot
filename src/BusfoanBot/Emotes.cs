@@ -6,5 +6,7 @@ namespace BusfoanBot
     {
         public static IEmote ThumbsUp => new Emoji("👍");
         public static IEmote Grin => new Emoji("😀");
+        public static IEmote Check => new Emoji("✅");
+        public static IEmote Bus => new Emoji("🚌");
     }
 }

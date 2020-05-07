@@ -24,6 +24,7 @@ namespace BusfoanBot
 			client.Log += Log;
 			client.MessageReceived += MessageReceived;
             client.ReactionAdded += (_, __, reaction) => ReactionAdded(reaction);
+			client.ReactionRemoved += (_, __, reaction) => ReactionRemoved(reaction);
 
 			await client.LoginAsync(TokenType.Bot, token);
 			await client.StartAsync();
@@ -45,14 +46,14 @@ namespace BusfoanBot
 			if (message.Content.StartsWith("!busfoan"))
 				GetStatechartIn(message.Channel).Send(WakeUp);
 
-			if (message.Content.StartsWith("!einsteigen"))
-				GetStatechartIn(message.Channel).Send(JoinPlayer(message));
+			////if (message.Content.StartsWith("!einsteigen"))
+			////	GetStatechartIn(message.Channel).Send(JoinPlayer(message));
 
-			if (message.Content.StartsWith("!aussteigen"))
-				GetStatechartIn(message.Channel).Send(LeavePlayer(message));
+			////if (message.Content.StartsWith("!aussteigen"))
+			////	GetStatechartIn(message.Channel).Send(LeavePlayer(message));
 
-			if (message.Content.StartsWith("!abfoat"))
-				GetStatechartIn(message.Channel).Send(StartGame);
+			//if (message.Content.StartsWith("!abfoat"))
+			//	GetStatechartIn(message.Channel).Send(StartGame);
 
 			if (message.Content.StartsWith("!1"))
 				GetStatechartIn(message.Channel).Send(CheckCard(message));
@@ -67,11 +68,21 @@ namespace BusfoanBot
 		private static Task ReactionAdded(SocketReaction reaction)
 		{
 			if (!statecharts.ContainsKey(reaction.Channel.Id)) return Task.CompletedTask;
+			if (!reaction.User.IsSpecified || reaction.User.Value.IsBot) return Task.CompletedTask;
 
 			var statechart = GetStatechartIn(reaction.Channel);
+			statechart.Send(BotStateMachineEvents.ReactionAdded(reaction));
 
-			if (reaction.Emote.Name == Emotes.ThumbsUp.Name)
-				statechart.Send(ThumbUp(reaction));
+			return Task.CompletedTask;
+		}
+
+		private static Task ReactionRemoved(SocketReaction reaction)
+		{
+			if (!statecharts.ContainsKey(reaction.Channel.Id)) return Task.CompletedTask;
+			if (!reaction.User.IsSpecified || reaction.User.Value.IsBot) return Task.CompletedTask;
+
+			var statechart = GetStatechartIn(reaction.Channel);
+			statechart.Send(BotStateMachineEvents.ReactionRemoved(reaction));
 
 			return Task.CompletedTask;
 		}
