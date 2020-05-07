@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace BusfoanBot.Models
+﻿namespace BusfoanBot.Models
 {
     public enum CardSymbol
     {
@@ -20,6 +18,9 @@ namespace BusfoanBot.Models
 
         public string Type { get; }
         public CardSymbol Symbol { get; }
+        public bool IsRed => Symbol == CardSymbol.Diamond || Symbol == CardSymbol.Heart;
+        public bool IsBlack => !IsRed;
+
         public override string ToString() => $"{Type}{Symbol}";
     }
 }

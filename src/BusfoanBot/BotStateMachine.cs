@@ -83,8 +83,11 @@ namespace BusfoanBot
         public static BotContext GetInitialContext(ISocketMessageChannel channel) 
             => new BotContext(channel, new[]
             {
-                Question.Create($"Rot {Emotes.ThumbsUp} oder schwarz {Emotes.Grin} ?", Emotes.ThumbsUp, Emotes.Grin),
-                Question.Create("Drunter, Drüber oder Grenze?", Emotes.ThumbsUp)
+                Question.Create($"Rot {Emotes.ThumbsUp} oder schwarz {Emotes.Grin} ?", 
+                    new Answer(Emotes.ThumbsUp, card => card.IsRed), // TODO: also lastcard into func?!
+                    new Answer(Emotes.Grin, card => card.IsBlack)),
+                Question.Create("Drunter, Drüber oder Grenze?", 
+                    new Answer(Emotes.ThumbsUp, card => card.IsRed)) // TODO
             });
 
         public static StatechartDefinition<BotContext> Behaviour(BotContext botContext) => Define.Statechart
@@ -155,16 +158,16 @@ namespace BusfoanBot
                             .WithEntryActions<BotContext>(RunIn(c => c.SendMessage("So des woas. Bis boid!")))
                             .AsFinal()));
 
-        private static SideEffectAction<BotContext, TData> RunIn<TData>(Func<BotContext, TData, Task> action)
+        private static SideEffectActionDefinition<BotContext, TData> RunIn<TData>(Func<BotContext, TData, Task> action)
             => Run<BotContext, TData>((context, message) => Task.WaitAll(action(context, message)));
                 
-        private static SideEffectAction<BotContext> RunIn(Func<BotContext, Task> action)
+        private static SideEffectActionDefinition<BotContext> RunIn(Func<BotContext, Task> action)
             => Run<BotContext>(context => Task.WaitAll(action(context)));
 
         private static async Task AskQuestion(BotContext context)
         {
             await context.SendReactableMessage($"{context.ActivePlayer.Name}: {context.ActiveQuestion.Text}",
-                context.ActiveQuestion.Emotes.AsEnumerable());
+                context.ActiveQuestion.Answers.Select(a => a.Emote).AsEnumerable());
         }
     }
 }
