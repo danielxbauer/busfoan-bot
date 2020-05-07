@@ -4,18 +4,14 @@ using System.Threading.Tasks;
 using BusfoanBot.Extensions;
 using BusfoanBot.Models;
 using Discord;
-using Discord.Rest;
 using Discord.WebSocket;
-using Statecharts.NET.Interfaces;
 using Statecharts.NET.Language;
-using Statecharts.NET.Language.Builders.StateNode;
 using Statecharts.NET.Model;
 using Statecharts.NET.Utilities;
 using Statecharts.NET.Utilities.Time;
-using static BusfoanBot.BotStateMachineEvents;
 using static BusfoanBot.BotStateMachineActions;
+using static BusfoanBot.BotStateMachineEvents;
 using static Statecharts.NET.Language.Keywords;
-using System.Runtime.CompilerServices;
 
 namespace BusfoanBot
 {
@@ -26,9 +22,6 @@ namespace BusfoanBot
 
         public static NamedDataEventFactory<SocketMessage> NextPlayer
             => Define.EventWithData<SocketMessage>(nameof(NextPlayer));
-
-        public static NamedDataEventFactory<SocketMessage> CheckCard
-            => Define.EventWithData<SocketMessage>(nameof(CheckCard));
 
         public static NamedDataEventFactory<SocketReaction> ReactionAdded
             => Define.EventWithData<SocketReaction>(nameof(ReactionAdded));
@@ -105,11 +98,25 @@ namespace BusfoanBot
         public static BotContext GetInitialContext(ISocketMessageChannel channel)
             => new BotContext(channel, new[]
             {
-                Question.Create($"Rot {Emotes.ThumbsUp} oder schwarz {Emotes.Grin} ?",
-                    new Answer(Emotes.ThumbsUp, card => card.IsRed), // TODO: also lastcard into func?!
-                    new Answer(Emotes.Grin, card => card.IsBlack)),
-                Question.Create("Drunter, Drüber oder Grenze?",
-                    new Answer(Emotes.ThumbsUp, card => card.IsRed)) // TODO
+                Question.Create($"Rot {Emotes.ThumbsUp} oder `schwarz` {Emotes.Grin} ?",
+                    new Answer(Emotes.ThumbsUp, (_, card) => card.IsRed),
+                    new Answer(Emotes.Grin, (_, card) => card.IsBlack)),
+                Question.Create($"Drunter {Emotes.ThumbsUp}, Drüber {Emotes.Check} oder Grenze {Emotes.Grin} ?",
+                    new Answer(Emotes.ThumbsUp, (lastCards, card) => lastCards.ElementAt(0).Value < card.Value),
+                    new Answer(Emotes.Check, (lastCards, card) => lastCards.ElementAt(0).Value > card.Value),
+                    new Answer(Emotes.Grin, (lastCards, card) => lastCards.ElementAt(0).Value == card.Value)), // TODO: show card!!
+                Question.Create($"Außen {Emotes.ThumbsUp}, Innen {Emotes.Check} oder Grenze {Emotes.Grin}?",
+                    new Answer(Emotes.ThumbsUp, (lastCards, card) => lastCards.OrderBy(c => c.Value).ElementAt(0).Value > card.Value
+                                                                  && lastCards.OrderBy(c => c.Value).ElementAt(1).Value < card.Value),
+                    new Answer(Emotes.Check, (lastCards, card) => lastCards.OrderBy(c => c.Value).ElementAt(0).Value > card.Value
+                                                                  || lastCards.OrderBy(c => c.Value).ElementAt(1).Value > card.Value),
+                    new Answer(Emotes.Grin, (lastCards, card) => lastCards.OrderBy(c => c.Value).ElementAt(0).Value == card.Value
+                                                                  || lastCards.OrderBy(c => c.Value).ElementAt(1).Value == card.Value)),
+                Question.Create($"Club {Emotes.Club}, Spade {Emotes.Spade}, Diamond {Emotes.Diamond} oder Herz {Emotes.Heart}?",
+                    new Answer(Emotes.Club, (_, card) => card.Symbol == CardSymbol.Club),
+                    new Answer(Emotes.Spade, (_, card) => card.Symbol == CardSymbol.Spade),
+                    new Answer(Emotes.Diamond, (_, card) => card.Symbol == CardSymbol.Diamond),
+                    new Answer(Emotes.Heart, (_, card) => card.Symbol == CardSymbol.Heart))
             });
 
         public static StatechartDefinition<BotContext> Behaviour(BotContext botContext) => Define.Statechart
@@ -165,15 +172,18 @@ namespace BusfoanBot
                                         .TransitionTo.Sibling("question")
                                         .WithActions(Log("NO MORE PLAYER"))),
                                 "waiting".WithTransitions(
-                                    On(CheckCard)
+                                    On(ReactionAdded).IfReactable()
                                         .TransitionTo.Sibling("checking")
-                                        .WithActions<BotContext>(RunIn<SocketMessage>((context, message) => context.RevealCardFor(message.Author.Id))),
+                                        .WithActions(RunIn<SocketReaction>((context, message) => context.RevealCardFor(message.User.Value.Id, message.Emote))),
                                     After(30.Seconds())
                                         .TransitionTo.Sibling("checking")
                                         .WithActions<BotContext>(RunIn(context => context.RevealCard()))),
-                                "checking".WithTransitions(
-                                    After(1.Seconds())
-                                        .TransitionTo.Sibling("player"))),
+                                "checking"
+                                    .WithEntryActions<BotContext>(
+                                        Log("CLEANUP"),
+                                        Assign<BotContext>(c => c.LastReactableMessage = null))
+                                    .WithTransitions(
+                                        After(1.Seconds()).TransitionTo.Sibling("player"))),
                         "final"
                             .WithEntryActions<BotContext>(RunIn(c => c.SendMessage("So des woas. Bis boid!")))
                             .AsFinal()));

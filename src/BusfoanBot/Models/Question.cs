@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using Discord;
 
 namespace BusfoanBot.Models
 {
@@ -17,5 +19,8 @@ namespace BusfoanBot.Models
 
         public static Question Create(string text, params Answer[] answers)
             => new Question(text, answers);
+
+        public bool IsCorrectAnswer(IEmote emote, ImmutableList<Card> lastCards, Card card)
+            => Answers.Where(a => a.Emote.Name == emote.Name).First().IsCorrect(lastCards, card);
     }
 }

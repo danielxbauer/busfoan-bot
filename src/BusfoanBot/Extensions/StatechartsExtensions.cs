@@ -20,16 +20,26 @@ namespace BusfoanBot.Extensions
             return builder.WithActions(Run<TContext>(action));
         }
 
-        public static ContextDataGuarded<BotContext, SocketReaction> IfReactedWith(
+        public static ContextDataGuarded<BotContext, SocketReaction> IfReactable(
             this WithNamedDataEvent<SocketReaction> @event,
-            IEmote emote,
             Func<BotContext, SocketReaction, bool> andConition = null)
         {
             return @event.If<BotContext>((context, reaction) =>
             {
                 return context.LastReactableMessage != null
                     && context.LastReactableMessage.Id == reaction.MessageId
-                    && reaction.Emote.Name == emote.Name
+                    && (andConition?.Invoke(context, reaction) ?? true);
+            });
+        }
+
+        public static ContextDataGuarded<BotContext, SocketReaction> IfReactedWith(
+            this WithNamedDataEvent<SocketReaction> @event,
+            IEmote emote,
+            Func<BotContext, SocketReaction, bool> andConition = null)
+        {
+            return @event.IfReactable((context, reaction) =>
+            {
+                return reaction.Emote.Name == emote.Name
                     && (andConition?.Invoke(context, reaction) ?? true);
             });
         }

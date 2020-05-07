@@ -46,22 +46,6 @@ namespace BusfoanBot
 			if (message.Content.StartsWith("!busfoan"))
 				GetStatechartIn(message.Channel).Send(WakeUp);
 
-			////if (message.Content.StartsWith("!einsteigen"))
-			////	GetStatechartIn(message.Channel).Send(JoinPlayer(message));
-
-			////if (message.Content.StartsWith("!aussteigen"))
-			////	GetStatechartIn(message.Channel).Send(LeavePlayer(message));
-
-			//if (message.Content.StartsWith("!abfoat"))
-			//	GetStatechartIn(message.Channel).Send(StartGame);
-
-			if (message.Content.StartsWith("!1"))
-				GetStatechartIn(message.Channel).Send(CheckCard(message));
-
-			// TODO:
-			////if (message.Content.StartsWith("!koatn"))
-			////	GetStatechartIn(message.Channel). .Send(ShowCard(message));
-
 			return Task.CompletedTask;
 		}
 

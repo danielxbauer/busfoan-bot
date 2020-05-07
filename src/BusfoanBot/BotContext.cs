@@ -107,7 +107,7 @@ namespace BusfoanBot
         {
             return "2 3 4 5 6 7 8 9 10 J Q K A"
                 .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Select(type => new Card(type, symbol));
+                .Select((type, index) => new Card(type, symbol, index + 2));
         }
 
         internal void SelectNextQuestion()
@@ -128,14 +128,18 @@ namespace BusfoanBot
             if (ActivePlayer != null)
             {
                 Card card = RevealCard(ActivePlayer.Id);
-                await SendMessage($"Sorry zlaung gwoat! Karte is: {card}");
+                await SendMessage($"Sorry zlaung gwoat! Karte is: {card}. Sauf ans");
             }
         } 
 
-        public async Task RevealCardFor(ulong player)
+        public async Task RevealCardFor(ulong player, IEmote emote)
         {
+            var lastCards = PlayerCards.GetValue(player, null);
             Card card = RevealCard(player);
             await SendMessage($"Karte is: {card}");
+            
+            bool isCorrect = ActiveQuestion.IsCorrectAnswer(emote, lastCards, card);
+            await SendMessage(isCorrect ? "Verteil ans" : "Sauf ans");
         }
 
         private Card RevealCard(ulong player)
