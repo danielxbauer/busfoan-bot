@@ -54,7 +54,7 @@ namespace BusfoanBot
 
             return new EmbedBuilder()
                 .WithDescription(message)
-                .WithColor(Color.Orange)
+                .WithColor(Color.Gold)
                 .Build(); ;
         }
 
@@ -99,7 +99,7 @@ namespace BusfoanBot
         public static BotContext GetInitialContext(ISocketMessageChannel channel)
             => new BotContext(channel, new[]
             {
-                Question.Create($"Rot {Emotes.ThumbsUp} oder `schwarz` {Emotes.Grin} ?",
+                Question.Create($"Rot {Emotes.ThumbsUp} oder schwarz {Emotes.Grin} ?",
                     new Answer(Emotes.ThumbsUp, (_, card) => card.IsRed),
                     new Answer(Emotes.Grin, (_, card) => card.IsBlack)),
                 Question.Create($"Drunter {Emotes.ThumbsUp}, Drüber {Emotes.Check} oder Grenze {Emotes.Grin} ?",
@@ -176,7 +176,7 @@ namespace BusfoanBot
                                     On(ReactionAdded).IfReactable()
                                         .TransitionTo.Sibling("checking")
                                         .WithActions(RunIn<SocketReaction>((context, message) => context.RevealCardFor(message.User.Value.Id, message.Emote))),
-                                    After(30.Seconds())
+                                    After(60.Seconds())
                                         .TransitionTo.Sibling("checking")
                                         .WithActions<BotContext>(RunIn(context => context.RevealCard()))),
                                 "checking"
@@ -198,15 +198,17 @@ namespace BusfoanBot
         private static async Task AskQuestion(BotContext context)
         {
             var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty)
-                .Select((card, index) => new EmbedFieldBuilder().WithName($"{index + 1}").WithValue($"{card}"))
+                .Select(card => $"{card}")
                 .ToList();
 
-            var message = new EmbedBuilder()
-                .WithDescription($"{context.ActivePlayer.Name}: {context.ActiveQuestion.Text}")
-                .WithColor(Color.Orange)
-                .AddFields(cards)
-                .Build();
+            string description = $"{context.ActiveQuestion.Text}\n";
+            if (cards.Any()) description += $"\n **Deine Koatn**: {string.Join(" ", cards)}";
 
+            var message = new EmbedBuilder()
+                .WithAuthor(context.ActivePlayer.Name)
+                .WithDescription(description)
+                .WithColor(Color.Orange)
+                .Build();
             await context.SendReactableMessage(message, context.ActiveQuestion.Answers.Select(a => a.Emote).AsEnumerable());
         }
     }

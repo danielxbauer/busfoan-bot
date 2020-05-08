@@ -69,6 +69,11 @@ namespace BusfoanBot
             return await Channel.SendMessageAsync(message);
         }
 
+        public async Task<RestUserMessage> SendMessage(Embed message)
+        {
+            return await Channel.SendMessageAsync(null, embed: message);
+        }
+
         public async Task<RestUserMessage> SendReactableMessage(Embed message, params IEmote[] emotes)
             => await this.SendReactableMessage(message, emotes.AsEnumerable());
 
@@ -128,7 +133,12 @@ namespace BusfoanBot
             if (ActivePlayer != null)
             {
                 Card card = RevealCard(ActivePlayer.Id);
-                await SendMessage($"Sorry zlaung gwoat! Karte is: {card}. Sauf ans");
+                var message = new EmbedBuilder()
+                    .WithColor(Color.Red)
+                    .WithAuthor(ActivePlayer.Name)
+                    .WithDescription($"{Emotes.CrossMark} Sauf ans {Emotes.BeerClinking}")
+                    .Build();
+                await SendMessage(message);
             }
         } 
 
@@ -136,10 +146,37 @@ namespace BusfoanBot
         {
             var lastCards = PlayerCards.GetValue(player, null);
             Card card = RevealCard(player);
-            await SendMessage($"Karte is: {card}");
+            ////await SendMessage($"Karte is: {card}");
+
+            try
+            {
+                var s = await Channel.SendFileAsync(card.ToFilePath(), $"Karte is: {card}");
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             
             bool isCorrect = ActiveQuestion.IsCorrectAnswer(emote, lastCards, card);
-            await SendMessage(isCorrect ? "Verteil ans" : "Sauf ans");
+            if (isCorrect)
+            {
+                var message = new EmbedBuilder()
+                    .WithColor(Color.Green)
+                    .WithAuthor(ActivePlayer.Name)
+                    .WithDescription($"{Emotes.Check} Verteil ans {Emotes.BeerClinking}")
+                    .Build();
+                await SendMessage(message);
+            } 
+            else
+            {
+                var message = new EmbedBuilder()
+                    .WithColor(Color.Red)
+                    .WithAuthor(ActivePlayer.Name)
+                    .WithDescription($"{Emotes.CrossMark} Sauf ans {Emotes.BeerClinking}")
+                    .Build();
+                await SendMessage(message);
+            }
+
         }
 
         private Card RevealCard(ulong player)
@@ -150,7 +187,7 @@ namespace BusfoanBot
             if (!PlayerCards.ContainsKey(player))
                 PlayerCards.Add(player, ImmutableList.CreateRange(new[] { card }));
             else
-                PlayerCards[player].Add(card);
+                PlayerCards[player] = PlayerCards[player].Add(card);
 
             return card;
         }

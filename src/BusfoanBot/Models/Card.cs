@@ -20,6 +20,7 @@ namespace BusfoanBot.Models
             Value = value;
         }
 
+        // 2 3 4 5 6 7 8 9 10 J Q K A
         public string Type { get; }
         public CardSymbol Symbol { get; }
         public int Value { get; }
@@ -40,6 +41,21 @@ namespace BusfoanBot.Models
                 case CardSymbol.Spade: return Emotes.Spade;
                 default: throw new ArgumentException($"No emoji mapped to CardSymbol '{symbol}'");
             }
+        }
+
+        public string ToFilePath()
+        {
+            string symbolName = string.Empty;
+            switch (Symbol)
+            {
+                case CardSymbol.Club: symbolName = "clubs"; break;
+                case CardSymbol.Diamond: symbolName = "diamonds"; break;
+                case CardSymbol.Heart: symbolName = "hearts"; break;
+                case CardSymbol.Spade: symbolName = "spades"; break;
+            }
+
+            //return @"C:\Dev\busfoan-bot\src\BusfoanBot\Assets\10_of_clubs.png";
+            return @$"Assets\{symbolName}\{Type}_of_{symbolName}.png";
         }
     }
 }

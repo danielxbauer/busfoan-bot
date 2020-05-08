@@ -6,6 +6,87 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\10_of_clubs.png" />
+    <None Remove="Assets\10_of_diamonds.png" />
+    <None Remove="Assets\10_of_hearts.png" />
+    <None Remove="Assets\10_of_spades.png" />
+    <None Remove="Assets\2_of_clubs.png" />
+    <None Remove="Assets\2_of_diamonds.png" />
+    <None Remove="Assets\2_of_hearts.png" />
+    <None Remove="Assets\2_of_spades.png" />
+    <None Remove="Assets\3_of_clubs.png" />
+    <None Remove="Assets\3_of_diamonds.png" />
+    <None Remove="Assets\3_of_hearts.png" />
+    <None Remove="Assets\3_of_spades.png" />
+    <None Remove="Assets\4_of_clubs.png" />
+    <None Remove="Assets\4_of_diamonds.png" />
+    <None Remove="Assets\4_of_hearts.png" />
+    <None Remove="Assets\4_of_spades.png" />
+    <None Remove="Assets\5_of_clubs.png" />
+    <None Remove="Assets\5_of_diamonds.png" />
+    <None Remove="Assets\5_of_hearts.png" />
+    <None Remove="Assets\5_of_spades.png" />
+    <None Remove="Assets\6_of_clubs.png" />
+    <None Remove="Assets\6_of_diamonds.png" />
+    <None Remove="Assets\6_of_hearts.png" />
+    <None Remove="Assets\6_of_spades.png" />
+    <None Remove="Assets\7_of_clubs.png" />
+    <None Remove="Assets\7_of_diamonds.png" />
+    <None Remove="Assets\7_of_hearts.png" />
+    <None Remove="Assets\7_of_spades.png" />
+    <None Remove="Assets\8_of_clubs.png" />
+    <None Remove="Assets\8_of_diamonds.png" />
+    <None Remove="Assets\8_of_hearts.png" />
+    <None Remove="Assets\8_of_spades.png" />
+    <None Remove="Assets\9_of_clubs.png" />
+    <None Remove="Assets\9_of_diamonds.png" />
+    <None Remove="Assets\9_of_hearts.png" />
+    <None Remove="Assets\9_of_spades.png" />
+    <None Remove="Assets\ace_of_clubs.png" />
+    <None Remove="Assets\ace_of_diamonds.png" />
+    <None Remove="Assets\ace_of_hearts.png" />
+    <None Remove="Assets\ace_of_spades.png" />
+    <None Remove="Assets\ace_of_spades2.png" />
+    <None Remove="Assets\black_joker.png" />
+    <None Remove="Assets\jack_of_clubs.png" />
+    <None Remove="Assets\jack_of_clubs2.png" />
+    <None Remove="Assets\jack_of_diamonds.png" />
+    <None Remove="Assets\jack_of_diamonds2.png" />
+    <None Remove="Assets\jack_of_hearts.png" />
+    <None Remove="Assets\jack_of_hearts2.png" />
+    <None Remove="Assets\jack_of_spades.png" />
+    <None Remove="Assets\jack_of_spades2.png" />
+    <None Remove="Assets\king_of_clubs.png" />
+    <None Remove="Assets\king_of_clubs2.png" />
+    <None Remove="Assets\king_of_diamonds.png" />
+    <None Remove="Assets\king_of_diamonds2.png" />
+    <None Remove="Assets\king_of_hearts.png" />
+    <None Remove="Assets\king_of_hearts2.png" />
+    <None Remove="Assets\king_of_spades.png" />
+    <None Remove="Assets\king_of_spades2.png" />
+    <None Remove="Assets\queen_of_clubs.png" />
+    <None Remove="Assets\queen_of_clubs2.png" />
+    <None Remove="Assets\queen_of_diamonds.png" />
+    <None Remove="Assets\queen_of_diamonds2.png" />
+    <None Remove="Assets\queen_of_hearts.png" />
+    <None Remove="Assets\queen_of_hearts2.png" />
+    <None Remove="Assets\queen_of_spades.png" />
+    <None Remove="Assets\queen_of_spades2.png" />
+    <None Remove="Assets\red_joker.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\10_of_clubs.png" />
+    <Resource Include="Assets\10_of_diamonds.png" />
+    <Content Include="Assets\black_joker.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\red_joker.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0" />
   </ItemGroup>
 
@@ -19,6 +100,165 @@
     <Reference Include="Statecharts.NET.XState">
       <HintPath>..\..\..\Statecharts.NET\Statecharts.NET.XState\bin\Debug\netstandard2.0\Statecharts.NET.XState.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\clubs\10_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\2_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\3_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\4_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\5_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\6_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\7_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\8_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\9_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\A_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\J_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\K_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\clubs\Q_of_clubs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\10_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\2_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\3_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\4_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\5_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\6_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\7_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\8_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\9_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\A_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\J_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\K_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\diamonds\Q_of_diamonds.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\10_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\2_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\3_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\4_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\5_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\6_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\7_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\8_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\9_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\A_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\J_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\K_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\hearts\Q_of_hearts.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\10_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\2_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\3_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\4_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\5_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\6_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\7_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\8_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\9_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\A_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\J_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\K_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\spades\Q_of_spades.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

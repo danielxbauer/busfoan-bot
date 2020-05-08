@@ -12,5 +12,7 @@ namespace BusfoanBot
         public static IEmote Heart => new Emoji("❤️");
         public static IEmote Spade => new Emoji("♠️");
         public static IEmote Diamond => new Emoji("♦️");
+        public static IEmote BeerClinking => new Emoji("🍻");
+        public static IEmote CrossMark => new Emoji("❌");
     }
 }
