@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using BusfoanBot.Extensions;
@@ -196,9 +197,14 @@ namespace BusfoanBot
 
         private static async Task AskQuestion(BotContext context)
         {
+            var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty)
+                .Select((card, index) => new EmbedFieldBuilder().WithName($"{index + 1}").WithValue($"{card}"))
+                .ToList();
+
             var message = new EmbedBuilder()
                 .WithDescription($"{context.ActivePlayer.Name}: {context.ActiveQuestion.Text}")
                 .WithColor(Color.Orange)
+                .AddFields(cards)
                 .Build();
 
             await context.SendReactableMessage(message, context.ActiveQuestion.Answers.Select(a => a.Emote).AsEnumerable());
