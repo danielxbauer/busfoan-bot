@@ -56,6 +56,8 @@ namespace BusfoanBot
                 .WithDescription($"{Emotes.CrossMark} Bus gecancelt {Emotes.CrossMark}"));
         }
 
+        public static async Task DeleteLastReactableMessage(BotContext context)
+            => DeleteLastReactableMessage(context, null);
         public static async Task DeleteLastReactableMessage(BotContext context, SocketReaction reaction)
         {
             if (context.LastReactableMessage == null) return;
@@ -152,12 +154,10 @@ namespace BusfoanBot
             var lastCards = context.PlayerCards.GetValue(player.Id, null);
             Card card = context.RevealCard(player.Id);
 
-            // TODO: test what happens if an exception is thrown here
-            await context.SendFile(card.ToFilePath());
-
+            // TODO: test what happens if an exception is thrown here (e.g. wrong file path)
             bool isCorrect = context.ActiveQuestion.IsCorrectAnswer(reaction.Emote, lastCards, card);
 
-            await context.SendMessage(b => b
+            await context.SendFile(card.ToFilePath(), b => b
                 .WithColor(isCorrect ? Color.Green : Color.Red)
                 .WithAuthor(context.ActivePlayer.Name)
                 .WithDescription(isCorrect

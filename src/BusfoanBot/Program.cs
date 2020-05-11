@@ -47,6 +47,9 @@ namespace BusfoanBot
 			if (message.Content.StartsWith("!busfoan"))
 				GetStatechartIn(message.Channel).Send(WakeUp);
 
+			if (message.Content.StartsWith("!aufhern"))
+				GetStatechartIn(message.Channel).Send(Cancel);
+
 			return Task.CompletedTask;
 		}
 

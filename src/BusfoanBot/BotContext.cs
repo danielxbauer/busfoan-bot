@@ -12,6 +12,8 @@ using Statecharts.NET.XState;
 
 namespace BusfoanBot
 {
+    public delegate EmbedBuilder MessageBuilder(EmbedBuilder builder);
+
     public class BotContext : IContext<BotContext>, IXStateSerializable
     {
         public BotContext(
@@ -62,7 +64,7 @@ namespace BusfoanBot
         {
             return await Channel.SendMessageAsync(message);
         }
-        public async Task<RestUserMessage> SendMessage(Func<EmbedBuilder, EmbedBuilder> builder)
+        public async Task<RestUserMessage> SendMessage(MessageBuilder builder)
         {
             var embed = builder(new EmbedBuilder()).Build();
             return await Channel.SendMessageAsync(null, embed: embed);
@@ -92,6 +94,11 @@ namespace BusfoanBot
         public async Task SendFile(string filePath)
         {
             await Channel.SendFileAsync(filePath);
+        }
+        public async Task SendFile(string filePath, MessageBuilder builder)
+        {
+            var embed = builder(new EmbedBuilder()).Build();
+            await Channel.SendFileAsync(filePath, embed: embed);
         }
 
         public bool AreQuestionsLeft => !Questions.IsEmpty;

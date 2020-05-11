@@ -9,6 +9,9 @@ namespace BusfoanBot
         public static NamedEvent WakeUp
             => Define.Event(nameof(WakeUp));
 
+        public static NamedEvent Cancel
+            => Define.Event(nameof(Cancel));
+
         public static NamedDataEventFactory<SocketMessage> NextPlayer
             => Define.EventWithData<SocketMessage>(nameof(NextPlayer));
 
