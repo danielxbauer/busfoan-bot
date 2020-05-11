@@ -146,11 +146,10 @@ namespace BusfoanBot
         {
             var lastCards = PlayerCards.GetValue(player, null);
             Card card = RevealCard(player);
-            ////await SendMessage($"Karte is: {card}");
 
             try
             {
-                var s = await Channel.SendFileAsync(card.ToFilePath(), $"Karte is: {card}");
+                var s = await Channel.SendFileAsync(card.ToFilePath());
             } 
             catch (Exception ex)
             {

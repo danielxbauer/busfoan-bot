@@ -99,21 +99,21 @@ namespace BusfoanBot
         public static BotContext GetInitialContext(ISocketMessageChannel channel)
             => new BotContext(channel, new[]
             {
-                Question.Create($"Rot {Emotes.ThumbsUp} oder schwarz {Emotes.Grin} ?",
+                Question.Create($"{Emotes.ThumbsUp} Rot oder {Emotes.Grin} Schwarz?",
                     new Answer(Emotes.ThumbsUp, (_, card) => card.IsRed),
                     new Answer(Emotes.Grin, (_, card) => card.IsBlack)),
-                Question.Create($"Drunter {Emotes.ThumbsUp}, Drüber {Emotes.Check} oder Grenze {Emotes.Grin} ?",
-                    new Answer(Emotes.ThumbsUp, (lastCards, card) => lastCards.ElementAt(0).Value < card.Value),
-                    new Answer(Emotes.Check, (lastCards, card) => lastCards.ElementAt(0).Value > card.Value),
-                    new Answer(Emotes.Grin, (lastCards, card) => lastCards.ElementAt(0).Value == card.Value)), // TODO: show card!!
-                Question.Create($"Außen {Emotes.ThumbsUp}, Innen {Emotes.Check} oder Grenze {Emotes.Grin}?",
-                    new Answer(Emotes.ThumbsUp, (lastCards, card) => lastCards.OrderBy(c => c.Value).ElementAt(0).Value > card.Value
-                                                                  && lastCards.OrderBy(c => c.Value).ElementAt(1).Value < card.Value),
-                    new Answer(Emotes.Check, (lastCards, card) => lastCards.OrderBy(c => c.Value).ElementAt(0).Value > card.Value
-                                                                  || lastCards.OrderBy(c => c.Value).ElementAt(1).Value > card.Value),
-                    new Answer(Emotes.Grin, (lastCards, card) => lastCards.OrderBy(c => c.Value).ElementAt(0).Value == card.Value
-                                                                  || lastCards.OrderBy(c => c.Value).ElementAt(1).Value == card.Value)),
-                Question.Create($"Club {Emotes.Club}, Spade {Emotes.Spade}, Diamond {Emotes.Diamond} oder Herz {Emotes.Heart}?",
+                Question.Create($"{Emotes.ThumbsUp} Drunter, {Emotes.Check} Drüber oder {Emotes.Grin} Grenze?", null,
+                    new Answer(Emotes.ThumbsUp, (lastCards, card) => card.Value < lastCards.ElementAt(0).Value),
+                    new Answer(Emotes.Check, (lastCards, card) => card.Value > lastCards.ElementAt(0).Value),
+                    new Answer(Emotes.Grin, (lastCards, card) => card.Value == lastCards.ElementAt(0).Value)), // TODO: show card!!
+                Question.Create($"{Emotes.ThumbsUp} Außen, {Emotes.Check} Innen oder {Emotes.Grin} Grenze?", null, // TODO: bugfix?
+                    new Answer(Emotes.ThumbsUp, (lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
+                                                                  && card.Value < lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
+                    new Answer(Emotes.Check, (lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
+                                                               || card.Value > lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
+                    new Answer(Emotes.Grin, (lastCards, card) => card.Value == lastCards.OrderBy(c => c.Value).ElementAt(0).Value
+                                                               ||card.Value == lastCards.OrderBy(c => c.Value).ElementAt(1).Value)),
+                Question.Create($"{Emotes.Club} Club, {Emotes.Spade} Spade, {Emotes.Diamond} Diamond oder {Emotes.Heart} Herz?", null,
                     new Answer(Emotes.Club, (_, card) => card.Symbol == CardSymbol.Club),
                     new Answer(Emotes.Spade, (_, card) => card.Symbol == CardSymbol.Spade),
                     new Answer(Emotes.Diamond, (_, card) => card.Symbol == CardSymbol.Diamond),
@@ -176,7 +176,7 @@ namespace BusfoanBot
                                     On(ReactionAdded).IfReactable()
                                         .TransitionTo.Sibling("checking")
                                         .WithActions(RunIn<SocketReaction>((context, message) => context.RevealCardFor(message.User.Value.Id, message.Emote))),
-                                    After(60.Seconds())
+                                    After(180.Seconds())
                                         .TransitionTo.Sibling("checking")
                                         .WithActions<BotContext>(RunIn(context => context.RevealCard()))),
                                 "checking"
@@ -209,6 +209,7 @@ namespace BusfoanBot
                 .WithDescription(description)
                 .WithColor(Color.Orange)
                 .Build();
+
             await context.SendReactableMessage(message, context.ActiveQuestion.Answers.Select(a => a.Emote).AsEnumerable());
         }
     }
