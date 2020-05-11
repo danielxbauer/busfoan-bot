@@ -39,7 +39,7 @@ namespace BusfoanBot
                     new Answer(Emotes.Heart, (_, card) => card.Symbol == CardSymbol.Heart))
             });
 
-        public static StatechartDefinition<BotContext> Behaviour(BotContext botContext) => Define.Statechart
+        public static StatechartDefinition<BotContext> Behaviour(BotContext botContext, BotOptions options) => Define.Statechart
             .WithInitialContext(botContext)
             .WithRootState(
                 "busfoan"
@@ -95,7 +95,7 @@ namespace BusfoanBot
                                     On(ReactionAdded).IfReactable()
                                         .TransitionTo.Sibling("checking")
                                         .WithActions(AsyncReaction(RevealCardForUser)),
-                                    After(180.Seconds())
+                                    After(options.AnswerTimeout)
                                         .TransitionTo.Sibling("checking")
                                         .WithActions<BotContext>(Async(RevealCard))),
                                 "checking"
@@ -105,7 +105,9 @@ namespace BusfoanBot
                                     .WithTransitions(
                                         After(1.Seconds()).TransitionTo.Sibling("player"))),
                         "final"
-                            .WithEntryActions<BotContext>(Async(ExitMessage))
+                            .WithEntryActions<BotContext>(
+                                Async(ExitMessage),
+                                Async(options.OnDone))
                             .AsFinal()));
 
         private static SideEffectActionDefinition<BotContext, SocketReaction> AsyncReaction(Func<BotContext, SocketReaction, Task> action)

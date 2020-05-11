@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace BusfoanBot
+namespace BusfoanBot.Models
 {
     public static class Emotes
     {

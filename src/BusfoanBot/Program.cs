@@ -7,6 +7,7 @@ using Statecharts.NET.XState;
 using static BusfoanBot.BotStateMachine;
 using static BusfoanBot.BotEvents;
 using Task = System.Threading.Tasks.Task;
+using BusfoanBot.Models;
 
 namespace BusfoanBot
 {
@@ -76,7 +77,12 @@ namespace BusfoanBot
 			if (statecharts.ContainsKey(channel.Id)) return statecharts[channel.Id];
 
 			BotContext initialContext =	GetInitialContext(channel);
-			StatechartDefinition<BotContext> behaviour = Behaviour(initialContext);
+			var options = new BotOptions
+			{
+				OnDone = context => CleanupStatechart(context.Channel)
+			};
+
+			StatechartDefinition<BotContext> behaviour = Behaviour(initialContext, options);
 
 			var parsedStatechart = Parser.Parse(behaviour) as ExecutableStatechart<BotContext>;
 			var statechart = Interpreter.Interpret(parsedStatechart);
@@ -91,5 +97,15 @@ namespace BusfoanBot
 			statechart.RunAsync();
 			return statechart;
 		}
+
+		private static Task CleanupStatechart(ISocketMessageChannel channel)
+        {
+			if (!statecharts.ContainsKey(channel.Id)) return Task.CompletedTask;
+
+			// TODO: How to stop running statechart?
+			statecharts.Remove(channel.Id);
+
+			return Task.CompletedTask;
+        }
 	}
 }
