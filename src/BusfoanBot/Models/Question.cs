@@ -11,7 +11,7 @@ namespace BusfoanBot.Models
         public Question(string text, IEnumerable<Answer> answers)
         {
             Text = text ?? throw new ArgumentNullException(nameof(text));
-            Answers = ImmutableList.CreateRange<Answer>(answers);
+            Answers = ImmutableList.CreateRange(answers);
         }
 
         public string Text { get; }

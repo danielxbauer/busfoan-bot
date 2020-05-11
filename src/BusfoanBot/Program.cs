@@ -5,7 +5,7 @@ using Statecharts.NET;
 using Statecharts.NET.Model;
 using Statecharts.NET.XState;
 using static BusfoanBot.BotStateMachine;
-using static BusfoanBot.BotStateMachineEvents;
+using static BusfoanBot.BotEvents;
 using Task = System.Threading.Tasks.Task;
 
 namespace BusfoanBot
@@ -55,7 +55,7 @@ namespace BusfoanBot
 			if (!reaction.User.IsSpecified || reaction.User.Value.IsBot) return Task.CompletedTask;
 
 			var statechart = GetStatechartIn(reaction.Channel);
-			statechart.Send(BotStateMachineEvents.ReactionAdded(reaction));
+			statechart.Send(BotEvents.ReactionAdded(reaction));
 
 			return Task.CompletedTask;
 		}
@@ -66,7 +66,7 @@ namespace BusfoanBot
 			if (!reaction.User.IsSpecified || reaction.User.Value.IsBot) return Task.CompletedTask;
 
 			var statechart = GetStatechartIn(reaction.Channel);
-			statechart.Send(BotStateMachineEvents.ReactionRemoved(reaction));
+			statechart.Send(BotEvents.ReactionRemoved(reaction));
 
 			return Task.CompletedTask;
 		}
