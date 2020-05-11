@@ -21,6 +21,7 @@ namespace BusfoanBot
                            "\n" +
                           $"{Emotes.Check} zum einsteigen\n" +
                           $"{Emotes.Bus} zum starten\n" +
+                          $"{Emotes.CrossMark} zum beenden\n" +
                           $"\n" +
                           $"{playerNames.Count()} san dabei:\n" +
                           $"{string.Join('\n', playerNames)}";
@@ -34,7 +35,7 @@ namespace BusfoanBot
         public static async Task WelcomeMessage(BotContext context)
         {
             var message = GetWelcomeMessage(context);
-            await context.SendReactableMessage(message, Emotes.Check, Emotes.Bus);
+            await context.SendReactableMessage(message, Emotes.Check, Emotes.Bus, Emotes.CrossMark);
         }
 
         public static async Task UpdateWelcomeMessage(BotContext context)
@@ -46,6 +47,19 @@ namespace BusfoanBot
         public static async Task ExitMessage(BotContext context)
         {
             await context.SendMessage("So des woas. Bis boid!");
+        }
+
+        public static async Task Canceled(BotContext context)
+        {
+            await context.SendMessage(b => b
+                .WithColor(Color.Red)
+                .WithDescription($"{Emotes.CrossMark} Bus gecancelt {Emotes.CrossMark}"));
+        }
+
+        public static async Task DeleteLastReactableMessage(BotContext context, SocketReaction reaction)
+        {
+            if (context.LastReactableMessage == null) return;
+            await context.DeleteMessage(context.LastReactableMessage);
         }
 
         public static async Task AddPlayer(BotContext context, SocketReaction reaction)

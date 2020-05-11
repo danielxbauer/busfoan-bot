@@ -63,7 +63,10 @@ namespace BusfoanBot
                                     .TransitionTo.Sibling("cleanup-wait-for-players"),
                                 On(ReactionAdded).IfReactedWith(Emotes.Bus)
                                     .TransitionTo.Self
-                                    .WithActions(AsyncReaction(LogNotEnoughPlayers))),
+                                    .WithActions(AsyncReaction(LogNotEnoughPlayers)),
+                                On(ReactionAdded).IfReactedWith(Emotes.CrossMark)
+                                    .TransitionTo.Sibling("canceled")
+                                    .WithActions(AsyncReaction(DeleteLastReactableMessage))),
                         "cleanup-wait-for-players"
                             .WithEntryActions<BotContext>(
                                 Log("CLEANUP"),
@@ -104,6 +107,11 @@ namespace BusfoanBot
                                         Assign<BotContext>(c => c.LastReactableMessage = null))
                                     .WithTransitions(
                                         After(1.Seconds()).TransitionTo.Sibling("player"))),
+                        "canceled"
+                            .WithEntryActions<BotContext>(
+                                Async(Canceled),
+                                Async(options.OnDone))
+                            .AsFinal(),
                         "final"
                             .WithEntryActions<BotContext>(
                                 Async(ExitMessage),

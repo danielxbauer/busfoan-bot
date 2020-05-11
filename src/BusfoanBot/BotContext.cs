@@ -84,6 +84,10 @@ namespace BusfoanBot
                 prop.Embed = content;
             });
         }
+        public async Task DeleteMessage(RestUserMessage message)
+        {
+            await message.DeleteAsync();
+        }
 
         public async Task SendFile(string filePath)
         {
