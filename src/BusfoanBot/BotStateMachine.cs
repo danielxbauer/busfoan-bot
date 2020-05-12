@@ -46,8 +46,7 @@ namespace BusfoanBot
                     .WithEntryActions(Log("Bot started"))
                     .WithTransitions(
                         On(Cancel)
-                            .TransitionTo.Child("canceled")
-                            .WithActions<BotContext>(Async(DeleteLastReactableMessage)))
+                            .TransitionTo.Child("canceled"))
                     .AsCompound()
                     .WithInitialState("idle")
                     .WithStates(
@@ -69,8 +68,10 @@ namespace BusfoanBot
                                     .TransitionTo.Self
                                     .WithActions(AsyncReaction(LogNotEnoughPlayers)),
                                 On(ReactionAdded).IfReactedWith(Emotes.CrossMark)
-                                    .TransitionTo.Child("canceled") // TODO: Send not working
-                                    .WithActions(AsyncReaction(DeleteLastReactableMessage))),
+                                    .TransitionTo.Self.WithActions(
+                                        Send(Cancel), 
+                                        Async(DeleteLastReactableMessage))
+                                ),
                         "cleanup-wait-for-players"
                             .WithEntryActions<BotContext>(
                                 Log("CLEANUP"),

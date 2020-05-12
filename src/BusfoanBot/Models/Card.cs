@@ -46,7 +46,6 @@ namespace BusfoanBot.Models
                 case CardSymbol.Spade: symbolName = "spades"; break;
             }
 
-            //return @"C:\Dev\busfoan-bot\src\BusfoanBot\Assets\10_of_clubs.png";
             return @$"Assets\{symbolName}\{Type}_of_{symbolName}.png";
         }
     }
