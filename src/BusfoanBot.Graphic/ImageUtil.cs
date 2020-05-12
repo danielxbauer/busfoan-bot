@@ -1,12 +1,22 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
 
 namespace BusfoanBot.Graphic
 {
+    public sealed class Padding
+    {
+        public int Top { get; set; } = 0;
+        public int Right { get; set; } = 0;
+        public int Bottom { get; set; } = 0;
+        public int Left { get; set; } = 0;
+
+        public static Padding All(int padding)
+            => new Padding { Top = padding, Right = padding, Bottom = padding, Left = padding };
+    }
+
     public class MergeOptions
     {
-        public int Padding { get; set; } = 0;
+        public Padding Padding { get; set; } = Padding.All(0);
         public int Gap { get; set; } = 0;
     }
 
@@ -17,17 +27,19 @@ namespace BusfoanBot.Graphic
             if (images == null || images.Length == 0) return null;
 
             int width = images.Sum(i => i.Width)
-                      + (options.Padding * 2) // top + bottom
-                      + (options.Gap * images.Length - 1); // between images
+                      + options.Padding.Right 
+                      + options.Padding.Left
+                      + (options.Gap * (images.Length - 1)); // between images
 
             int height = images.Select(i => i.Height).Max() 
-                      + (options.Padding * 2); // top + bottom
+                      + options.Padding.Top 
+                      + options.Padding.Bottom;
             
             var bitmap = new Bitmap(width, height);
             using (var g = Graphics.FromImage(bitmap))
             {
-                int widthOffset = options.Padding;
-                int heightOffset = options.Padding;
+                int widthOffset = options.Padding.Left;
+                int heightOffset = options.Padding.Top;
 
                 foreach (var image in images)
                 {

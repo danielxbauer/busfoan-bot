@@ -10,17 +10,21 @@ namespace BusfoanBot.Graphic.Test
         [Fact]
         public void Test1()
         {
-            var image1 = new Bitmap("testimage1.png");
-            var image2 = new Bitmap("testimage2.png");
+            var card1 = new Bitmap("testimage1.png");
+            var card2 = new Bitmap("testimage2.png");
 
             var options = new MergeOptions()
             {
-                Padding = 20,
+                Padding = Padding.All(20),
                 Gap = 20
             };
 
-            var image = new ImageUtil().MergeHorizontal(options, image1, image2, image1, image2);
+            var image = new ImageUtil().MergeHorizontal(options, card1, card2, card1, card2);
             image.Save("test.png", ImageFormat.Png);
+
+            options.Padding.Right += options.Gap + card1.Width;
+            var image2 = new ImageUtil().MergeHorizontal(options, card1, card2, card1);
+            image2.Save("test2.png", ImageFormat.Png);
         }
     }
 }
