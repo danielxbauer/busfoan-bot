@@ -5,6 +5,7 @@ using System.Linq;
 using BusfoanBot.Extensions;
 using BusfoanBot.Graphic;
 using BusfoanBot.Graphic.Extensions;
+using BusfoanBot.Graphic.Models;
 using BusfoanBot.Models;
 
 namespace BusfoanBot
