@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -36,6 +37,12 @@ namespace BusfoanBot
             await LastReactableMessage.AddReactionsAsync(emotes.ToArray());
             return LastReactableMessage;
         }
+        public async Task<RestUserMessage> SendReactableFile(Stream stream, Embed message, IEnumerable<IEmote> emotes)
+        {
+            LastReactableMessage = await SendFile(stream, message);
+            await LastReactableMessage.AddReactionsAsync(emotes.ToArray());
+            return LastReactableMessage;
+        }
 
         public async Task UpdateMessage(RestUserMessage message, Embed content)
         {
@@ -49,14 +56,11 @@ namespace BusfoanBot
             await message.DeleteAsync();
         }
 
-        public async Task SendFile(string filePath)
+        public Task<RestUserMessage> SendFile(Stream stream) 
+            => SendFile(stream);
+        public async Task<RestUserMessage> SendFile(Stream stream, Embed embed)
         {
-            await Channel.SendFileAsync(filePath);
-        }
-        public async Task SendFile(string filePath, MessageBuilder builder)
-        {
-            var embed = builder(new EmbedBuilder()).Build();
-            await Channel.SendFileAsync(filePath, embed: embed);
+            return await Channel.SendFileAsync(stream, "cards.png", embed: embed);
         }
     }
 }

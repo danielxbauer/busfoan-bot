@@ -16,11 +16,14 @@ namespace BusfoanBot
 		private static readonly string token = "NzA2NDk3MjMwMDA1MjA3MDQx.Xq7pFw.mGgt38aCNVHmcZ4NxR4xXwqDMgY";
 		
 		private static DiscordSocketClient client;
+		private static ImageCache imageCache;
 		private static IDictionary<ulong, RunningStatechart<BotContext>> statecharts
 			= new Dictionary<ulong, RunningStatechart<BotContext>>();
 
 		public static async Task Main()
         {
+			imageCache = new ImageCache();
+
 			client = new DiscordSocketClient();
 			client.Log += Log;
 			client.MessageReceived += MessageReceived;
@@ -79,7 +82,7 @@ namespace BusfoanBot
 		{
 			if (statecharts.ContainsKey(channel.Id)) return statecharts[channel.Id];
 
-			BotContext initialContext =	GetInitialContext(channel);
+			BotContext initialContext =	GetInitialContext(channel, imageCache);
 			var options = new BotOptions
 			{
 				OnDone = context => CleanupStatechart(context.Channel)

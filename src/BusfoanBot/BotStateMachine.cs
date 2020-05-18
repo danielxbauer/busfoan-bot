@@ -15,8 +15,8 @@ namespace BusfoanBot
 {
     public static class BotStateMachine
     {
-        public static BotContext GetInitialContext(ISocketMessageChannel channel)
-            => new BotContext(channel, new[]
+        public static BotContext GetInitialContext(ISocketMessageChannel channel, ImageCache imageCache)
+            => new BotContext(channel, imageCache, new[]
             {
                 Question.Create($"{Emotes.ThumbsUp} Rot oder {Emotes.Grin} Schwarz?",
                     new Answer(Emotes.ThumbsUp, (_, card) => card.IsRed),

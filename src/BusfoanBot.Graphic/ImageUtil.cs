@@ -1,39 +1,28 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using BusfoanBot.Graphic.Models;
 
 namespace BusfoanBot.Graphic
 {
-    public sealed class Padding
-    {
-        public int Top { get; set; } = 0;
-        public int Right { get; set; } = 0;
-        public int Bottom { get; set; } = 0;
-        public int Left { get; set; } = 0;
-
-        public static Padding All(int padding)
-            => new Padding { Top = padding, Right = padding, Bottom = padding, Left = padding };
-    }
-
     public class MergeOptions
     {
-        public Padding Padding { get; set; } = Padding.All(0);
+        public Padding Padding { get; set; } = Padding.None;
         public int Gap { get; set; } = 0;
     }
 
-    public class ImageUtil
+    public static class ImageUtil
     {
-        public Bitmap MergeHorizontal(MergeOptions options, params Bitmap[] images)
+        public static Bitmap MergeHorizontal(IEnumerable<PaddableImage> images, MergeOptions options)
         {
-            if (images == null || images.Length == 0) return null;
+            if (images == null || images.Count() == 0) return null;
 
-            int width = images.Sum(i => i.Width)
-                      + options.Padding.Right 
-                      + options.Padding.Left
-                      + (options.Gap * (images.Length - 1)); // between images
+            int width = images.Sum(i => i.Width)                        
+                      + options.Padding.Width
+                      + (options.Gap * (images.Count() - 1)); // between images
 
             int height = images.Select(i => i.Height).Max() 
-                      + options.Padding.Top 
-                      + options.Padding.Bottom;
+                      + options.Padding.Height;
             
             var bitmap = new Bitmap(width, height);
             using (var g = Graphics.FromImage(bitmap))
@@ -43,7 +32,12 @@ namespace BusfoanBot.Graphic
 
                 foreach (var image in images)
                 {
-                    g.DrawImage(image, widthOffset, heightOffset, image.Width, image.Height);
+                    g.DrawImage(image.Image, 
+                        widthOffset + image.Padding.Left, 
+                        heightOffset + image.Padding.Top, 
+                        image.Image.Width, 
+                        image.Image.Height);
+
                     widthOffset += image.Width + options.Gap;
                 }
             }

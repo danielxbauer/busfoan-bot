@@ -91,6 +91,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BusfoanBot.Graphic\BusfoanBot.Graphic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Statecharts.NET.Core">
       <HintPath>..\..\..\Statecharts.NET\Statecharts.NET.Core\bin\Debug\netstandard2.0\Statecharts.NET.Core.dll</HintPath>
     </Reference>
@@ -103,6 +107,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\back.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\clubs\10_of_clubs.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

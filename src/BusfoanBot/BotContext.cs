@@ -18,9 +18,11 @@ namespace BusfoanBot
     {
         public BotContext(
             ISocketMessageChannel channel,
+            ImageCache imageCache,
             IEnumerable<Question> questions)
             : base(channel)
         {
+            ImageCache = imageCache ?? throw new ArgumentNullException(nameof(imageCache));
             AllPlayers = ImmutableList<Player>.Empty;
             Questions = ImmutableStack.CreateRange(questions.Reverse());
             Players = ImmutableStack<Player>.Empty;
@@ -28,6 +30,7 @@ namespace BusfoanBot
             PlayerCards = new Dictionary<ulong, ImmutableList<Card>>();
         }
 
+        public ImageCache ImageCache { get; }
         public ImmutableStack<Card> Cards { get; set; }
         public IDictionary<ulong, ImmutableList<Card>> PlayerCards { get; }
 

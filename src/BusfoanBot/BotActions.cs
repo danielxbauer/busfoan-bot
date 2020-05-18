@@ -56,7 +56,7 @@ namespace BusfoanBot
                 .WithDescription($"{Emotes.CrossMark} Bus gecancelt {Emotes.CrossMark}"));
         }
 
-        public static async Task DeleteLastReactableMessage(BotContext context)
+        public static Task DeleteLastReactableMessage(BotContext context)
             => DeleteLastReactableMessage(context, null);
         public static async Task DeleteLastReactableMessage(BotContext context, SocketReaction reaction)
         {
@@ -99,7 +99,7 @@ namespace BusfoanBot
             context.Cards = ImmutableStack.CreateRange(shuffledCards);
         }
 
-        private static IEnumerable<Card> GenerateCards()
+        public static IEnumerable<Card> GenerateCards()
         {
             return new[] { CardSymbol.Club, CardSymbol.Spade, CardSymbol.Diamond, CardSymbol.Heart }
                 .SelectMany(symbol => GenerateCards(symbol));
@@ -119,20 +119,16 @@ namespace BusfoanBot
 
         public static async Task AskQuestion(BotContext context)
         {
-            var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty)
-                .Select(card => $"{card}")
-                .ToList();
-
-            string description = $"{context.ActiveQuestion.Text}\n";
-            if (cards.Any()) description += $"\n **Deine Koatn**: {string.Join(" ", cards)}";
+            var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty);
 
             var message = new EmbedBuilder()
                 .WithAuthor(context.ActivePlayer.Name)
-                .WithDescription(description)
+                .WithDescription(context.ActiveQuestion.Text)
                 .WithColor(Color.Orange)
                 .Build();
 
-            await context.SendReactableMessage(message, 
+            var cardImage = context.ImageCache.GenerateCardImage(cards, showEmptyCard: true);
+            await context.SendReactableFile(cardImage, message,
                 context.ActiveQuestion.Answers.Select(a => a.Emote).AsEnumerable());
         }
 
@@ -157,12 +153,19 @@ namespace BusfoanBot
             // TODO: test what happens if an exception is thrown here (e.g. wrong file path)
             bool isCorrect = context.ActiveQuestion.IsCorrectAnswer(reaction.Emote, lastCards, card);
 
-            await context.SendFile(card.ToFilePath(), b => b
+            var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty);
+            var message = new EmbedBuilder()
                 .WithColor(isCorrect ? Color.Green : Color.Red)
                 .WithAuthor(context.ActivePlayer.Name)
                 .WithDescription(isCorrect
                     ? $"{Emotes.Check} Verteil ans {Emotes.BeerClinking}"
-                    : $"{Emotes.CrossMark} Sauf ans {Emotes.BeerClinking}"));
-        }
+                    : $"{Emotes.CrossMark} Sauf ans {Emotes.BeerClinking}")
+                .Build();
+
+            context.DeleteMessage(context.LastReactableMessage);
+
+            var cardImage = context.ImageCache.GenerateCardImage(cards, showEmptyCard: false);
+            await context.SendFile(cardImage, message);
+        }        
     }
 }

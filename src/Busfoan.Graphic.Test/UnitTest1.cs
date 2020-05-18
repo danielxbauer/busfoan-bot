@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using BusfoanBot.Graphic.Extensions;
+using BusfoanBot.Graphic.Models;
 using Xunit;
 
 // TODO: change project folder
@@ -10,21 +13,32 @@ namespace BusfoanBot.Graphic.Test
         [Fact]
         public void Test1()
         {
-            var card1 = new Bitmap("testimage1.png");
-            var card2 = new Bitmap("testimage2.png");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
 
-            var options = new MergeOptions()
+            for (int i = 0; i < 2000; i++)
             {
-                Padding = Padding.All(20),
-                Gap = 20
-            };
+                var card1 = new Bitmap("testimage1.png");
+                var card2 = new Bitmap("testimage2.png");
 
-            var image = new ImageUtil().MergeHorizontal(options, card1, card2, card1, card2);
-            image.Save("test.png", ImageFormat.Png);
+                var options = new MergeOptions()
+                {
+                    Padding = Padding.All(20),
+                    Gap = 20
+                };
 
-            options.Padding.Right += options.Gap + card1.Width;
-            var image2 = new ImageUtil().MergeHorizontal(options, card1, card2, card1);
-            image2.Save("test2.png", ImageFormat.Png);
+                var image = ImageUtil.MergeHorizontal(new[]
+                {
+                    card1.WithPadding(Padding.TopPadding(50)),
+                    card2.WithPadding(Padding.TopPadding(50)),
+                    card1.WithPadding(Padding.TopPadding(50)),
+                    card2.WithNoPadding()
+                }, options);
+
+                image.Save("test.png", ImageFormat.Png);
+            }
+
+            stopwatch.Stop();
         }
     }
 }
