@@ -9,7 +9,7 @@ namespace BusfoanBot.ImageScaler
     class Program
     {
         static readonly string inputPath = "C:/Dev/busfoan-bot/Assets/Cards/Default";
-        static readonly string outputPath = "C:/Dev/busfoan-bot/src/BusfoanBot/Assets/_Generated";
+        static readonly string outputPath = "C:/Dev/busfoan-bot/Assets/Cards/Default/Rendered";
 
         static void Main(string[] args)
         {
