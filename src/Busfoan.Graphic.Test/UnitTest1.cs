@@ -16,10 +16,10 @@ namespace BusfoanBot.Graphic.Test
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < 1; i++)
             {
-                var card1 = new Bitmap("testimage1.png");
-                var card2 = new Bitmap("testimage2.png");
+                var card1 = new Bitmap("C2.png");
+                var card2 = new Bitmap("C3.png");
 
                 var options = new MergeOptions()
                 {

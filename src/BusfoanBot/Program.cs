@@ -22,7 +22,7 @@ namespace BusfoanBot
 
 		public static async Task Main()
         {
-			imageCache = new ImageCache();
+			imageCache = new ImageCache("Assets");
 
 			client = new DiscordSocketClient();
 			client.Log += Log;

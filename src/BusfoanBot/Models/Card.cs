@@ -1,5 +1,4 @@
 ﻿using System;
-using Discord;
 
 namespace BusfoanBot.Models
 {
@@ -12,7 +11,7 @@ namespace BusfoanBot.Models
             Value = value;
         }
 
-        public string Id => $"{Type}{MapSymbolToEmote(Symbol)}";
+        public string Id => $"{MapSymbol(Symbol)}{Type}";
 
         // 2 3 4 5 6 7 8 9 10 J Q K A
         public string Type { get; }
@@ -22,19 +21,15 @@ namespace BusfoanBot.Models
         public bool IsRed => Symbol == CardSymbol.Diamond || Symbol == CardSymbol.Heart;
         public bool IsBlack => !IsRed;
 
-        public override string ToString() => $"{Type}{MapSymbolToEmote(Symbol)}";
+        public override string ToString() => $"{Type}{MapSymbol(Symbol)}";
 
-        // TODO: to extension method
-        private IEmote MapSymbolToEmote(CardSymbol symbol)
+        private string MapSymbol(CardSymbol symbol) => symbol switch
         {
-            switch(symbol)
-            {
-                case CardSymbol.Club: return Emotes.Club;
-                case CardSymbol.Diamond: return Emotes.Diamond;
-                case CardSymbol.Heart: return Emotes.Heart;
-                case CardSymbol.Spade: return Emotes.Spade;
-                default: throw new ArgumentException($"No emoji mapped to CardSymbol '{symbol}'");
-            }
-        }
+            CardSymbol.Club => "C",
+            CardSymbol.Diamond => "D",
+            CardSymbol.Heart => "H",
+            CardSymbol.Spade => "S",
+            _ => throw new ArgumentException($"No CardSymbol '{symbol}' to mapped.")
+        };
     }
 }
