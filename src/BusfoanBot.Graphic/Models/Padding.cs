@@ -1,6 +1,6 @@
 ﻿namespace BusfoanBot.Graphic.Models
 {
-    internal sealed class Padding
+    public sealed class Padding
     {
         public int Top { get; set; } = 0;
         public int Right { get; set; } = 0;

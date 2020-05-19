@@ -4,9 +4,9 @@ using BusfoanBot.Graphic.Models;
 
 namespace BusfoanBot.Graphic.Extensions
 {
-    internal static class BitmapExtensions
+    public static class BitmapExtensions
     {
-        internal static Stream AsStream(this Bitmap image)
+        public static Stream AsStream(this Bitmap image)
         {
             var memoryStream = new MemoryStream();
             image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
@@ -15,10 +15,10 @@ namespace BusfoanBot.Graphic.Extensions
             return memoryStream;
         }
 
-        internal static PaddableImage WithNoPadding(this Bitmap image) 
+        public static PaddableImage WithNoPadding(this Bitmap image) 
             => new PaddableImage(image, Padding.All(0));
 
-        internal static PaddableImage WithPadding(this Bitmap image, Padding padding)
+        public static PaddableImage WithPadding(this Bitmap image, Padding padding)
             => new PaddableImage(image, padding);
     }
 }

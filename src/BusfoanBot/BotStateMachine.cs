@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BusfoanBot.Domain;
 using BusfoanBot.Extensions;
-using BusfoanBot.Graphic;
 using BusfoanBot.Models;
 using Discord.WebSocket;
 using Statecharts.NET.Language;
@@ -72,8 +71,7 @@ namespace BusfoanBot
                                 On(ReactionAdded).IfReactedWith(Emotes.CrossMark)
                                     .TransitionTo.Self.WithActions(
                                         Send(Cancel), 
-                                        Async(DeleteLastReactableMessage))
-                                ),
+                                        Async(DeleteLastReactableMessage))),
                         "cleanup-wait-for-players"
                             .WithEntryActions<BotContext>(
                                 Log("CLEANUP"),

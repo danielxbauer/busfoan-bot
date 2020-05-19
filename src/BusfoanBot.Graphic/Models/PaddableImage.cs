@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace BusfoanBot.Graphic.Models
 {
-    internal sealed class PaddableImage
+    public sealed class PaddableImage
     {
         public PaddableImage(Bitmap image, Padding padding = null)
         {
