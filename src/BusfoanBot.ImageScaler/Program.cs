@@ -8,8 +8,8 @@ namespace BusfoanBot.ImageScaler
 {
     class Program
     {
-        static readonly string inputPath = "C:/Dev/busfoan-bot/Assets/Cards/SVG-cards-1.3";
-        static readonly string outputName = $"_OUTPUT";
+        static readonly string inputPath = "C:/Dev/busfoan-bot/Assets/Cards/Default";
+        static readonly string outputPath = "C:/Dev/busfoan-bot/src/BusfoanBot/Assets/_Generated";
 
         static void Main(string[] args)
         {
@@ -19,7 +19,7 @@ namespace BusfoanBot.ImageScaler
             int count = files.Count();
             Console.WriteLine($"Found {count} svgs.");
 
-            var outputDirectory = Directory.CreateDirectory($"{inputPath}/{outputName}");
+            var outputDirectory = Directory.CreateDirectory(outputPath);
 
             int i = 1;
             foreach (var file in files)
