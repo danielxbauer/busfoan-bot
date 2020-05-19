@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using BusfoanBot.Graphic;
+using BusfoanBot.Domain;
 using BusfoanBot.Graphic.Extensions;
 using BusfoanBot.Graphic.Models;
-using BusfoanBot.Models;
 
-namespace BusfoanBot
+namespace BusfoanBot.Graphic.Services
 {
-    public class ImageCache
+    public class ImageProcessor : IImageProcessor
     {
         private const string back = "back";
 
@@ -18,20 +17,20 @@ namespace BusfoanBot
         private readonly int cardHeight;
         private readonly IDictionary<string, Bitmap> imageCache;
 
-        public ImageCache(string assetPath)
+        public ImageProcessor(string assetPath, IEnumerable<Card> cards)
         {
             var backImage = new Bitmap($"{assetPath}/{back}.png");
             cardWidth = backImage.Width;
             cardHeight = backImage.Height;
 
-            imageCache = LoadCardImages(assetPath);
-            imageCache.Add("back", backImage);            
+            imageCache = LoadCardImages(assetPath, cards);
+            imageCache.Add("back", backImage);
         }
 
-        private Dictionary<string, Bitmap> LoadCardImages(string assetPath)
+        private Dictionary<string, Bitmap> LoadCardImages(string assetPath, IEnumerable<Card> cards)
         {
             var images = new Dictionary<string, Bitmap>();
-            foreach (var card in BotActions.GenerateCards())
+            foreach (var card in cards)
             {
                 var image = new Bitmap($"{assetPath}/{card.Id}.png");
                 if (image.Width != cardWidth || image.Height != cardHeight)
@@ -45,10 +44,7 @@ namespace BusfoanBot
 
         public Stream GenerateCardImage(IEnumerable<Card> cards, bool showEmptyCard)
         {
-            var images = cards
-                .Select(card => imageCache[card.Id])
-                .Select(i => i.WithNoPadding())
-                .ToList();
+            var images = cards.Select(card => imageCache[card.Id].WithNoPadding()).ToList();
 
             var options = new MergeOptions
             {

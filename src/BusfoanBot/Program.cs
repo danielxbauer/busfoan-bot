@@ -8,6 +8,8 @@ using static BusfoanBot.BotStateMachine;
 using static BusfoanBot.BotEvents;
 using Task = System.Threading.Tasks.Task;
 using BusfoanBot.Models;
+using BusfoanBot.Graphic;
+using BusfoanBot.Graphic.Services;
 
 namespace BusfoanBot
 {
@@ -16,13 +18,14 @@ namespace BusfoanBot
 		private static readonly string token = "NzA2NDk3MjMwMDA1MjA3MDQx.Xq7pFw.mGgt38aCNVHmcZ4NxR4xXwqDMgY";
 		
 		private static DiscordSocketClient client;
-		private static ImageCache imageCache;
+		private static IImageProcessor imageProcessor;
 		private static IDictionary<ulong, RunningStatechart<BotContext>> statecharts
 			= new Dictionary<ulong, RunningStatechart<BotContext>>();
 
 		public static async Task Main()
         {
-			imageCache = new ImageCache("Assets");
+			imageProcessor = new ImageProcessor("Assets", BotActions.GenerateCards());
+			BotActions.imageProcessor = imageProcessor;
 
 			client = new DiscordSocketClient();
 			client.Log += Log;
@@ -82,7 +85,7 @@ namespace BusfoanBot
 		{
 			if (statecharts.ContainsKey(channel.Id)) return statecharts[channel.Id];
 
-			BotContext initialContext =	GetInitialContext(channel, imageCache);
+			BotContext initialContext =	GetInitialContext(channel);
 			var options = new BotOptions
 			{
 				OnDone = context => CleanupStatechart(context.Channel)

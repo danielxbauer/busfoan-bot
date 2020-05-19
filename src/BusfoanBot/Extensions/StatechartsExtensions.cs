@@ -9,14 +9,6 @@ namespace BusfoanBot.Extensions
 {
     public static class StatechartsExtensions
     {
-        public static ContextGuardedWithActions<TContext> WithAction<TContext>(
-            this ContextGuardedWithTarget<TContext> builder,
-            System.Action<TContext> action)
-            where TContext : IContext<TContext>
-        {
-            return builder.WithActions(Run<TContext>(action));
-        }
-
         public static ContextDataGuarded<BotContext, SocketReaction> IfReactable(
             this WithNamedDataEvent<SocketReaction> @event,
             Func<BotContext, SocketReaction, bool> andConition = null)

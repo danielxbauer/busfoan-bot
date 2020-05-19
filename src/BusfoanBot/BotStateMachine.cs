@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using BusfoanBot.Domain;
 using BusfoanBot.Extensions;
+using BusfoanBot.Graphic;
 using BusfoanBot.Models;
 using Discord.WebSocket;
 using Statecharts.NET.Language;
@@ -15,28 +17,28 @@ namespace BusfoanBot
 {
     public static class BotStateMachine
     {
-        public static BotContext GetInitialContext(ISocketMessageChannel channel, ImageCache imageCache)
-            => new BotContext(channel, imageCache, new[]
+        public static BotContext GetInitialContext(ISocketMessageChannel channel)
+            => new BotContext(channel, new[]
             {
                 Question.Create($"{Emotes.ThumbsUp} Rot oder {Emotes.Grin} Schwarz?",
-                    new Answer(Emotes.ThumbsUp, (_, card) => card.IsRed),
-                    new Answer(Emotes.Grin, (_, card) => card.IsBlack)),
+                    Emotes.ThumbsUp.AsAnswer((_, card) => card.IsRed),
+                    Emotes.Grin.AsAnswer((_, card) => card.IsBlack)),
                 Question.Create($"{Emotes.ThumbsUp} Drunter, {Emotes.Check} Drüber oder {Emotes.Grin} Grenze?",
-                    new Answer(Emotes.ThumbsUp, (lastCards, card) => card.Value < lastCards.ElementAt(0).Value),
-                    new Answer(Emotes.Check, (lastCards, card) => card.Value > lastCards.ElementAt(0).Value),
-                    new Answer(Emotes.Grin, (lastCards, card) => card.Value == lastCards.ElementAt(0).Value)),
+                    Emotes.ThumbsUp.AsAnswer((lastCards, card) => card.Value < lastCards.ElementAt(0).Value),
+                    Emotes.Check.AsAnswer((lastCards, card) => card.Value > lastCards.ElementAt(0).Value),
+                    Emotes.Grin.AsAnswer((lastCards, card) => card.Value == lastCards.ElementAt(0).Value)),
                 Question.Create($"{Emotes.ThumbsUp} Außen, {Emotes.Check} Innen oder {Emotes.Grin} Grenze?",
-                    new Answer(Emotes.ThumbsUp, (lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
-                                                                  && card.Value < lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
-                    new Answer(Emotes.Check, (lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
-                                                               || card.Value > lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
-                    new Answer(Emotes.Grin, (lastCards, card) => card.Value == lastCards.OrderBy(c => c.Value).ElementAt(0).Value
+                    Emotes.ThumbsUp.AsAnswer((lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
+                                                       && card.Value < lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
+                    Emotes.Check.AsAnswer((lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
+                                                    || card.Value > lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
+                    Emotes.Grin.AsAnswer((lastCards, card) => card.Value == lastCards.OrderBy(c => c.Value).ElementAt(0).Value
                                                                ||card.Value == lastCards.OrderBy(c => c.Value).ElementAt(1).Value)),
                 Question.Create($"{Emotes.Club} Club, {Emotes.Spade} Spade, {Emotes.Diamond} Diamond oder {Emotes.Heart} Herz?",
-                    new Answer(Emotes.Club, (_, card) => card.Symbol == CardSymbol.Club),
-                    new Answer(Emotes.Spade, (_, card) => card.Symbol == CardSymbol.Spade),
-                    new Answer(Emotes.Diamond, (_, card) => card.Symbol == CardSymbol.Diamond),
-                    new Answer(Emotes.Heart, (_, card) => card.Symbol == CardSymbol.Heart))
+                    Emotes.Club.AsAnswer((_, card) => card.Symbol == CardSymbol.Club),
+                    Emotes.Spade.AsAnswer((_, card) => card.Symbol == CardSymbol.Spade),
+                    Emotes.Diamond.AsAnswer((_, card) => card.Symbol == CardSymbol.Diamond),
+                    Emotes.Heart.AsAnswer((_, card) => card.Symbol == CardSymbol.Heart))
             });
 
         public static StatechartDefinition<BotContext> Behaviour(BotContext botContext, BotOptions options) => Define.Statechart

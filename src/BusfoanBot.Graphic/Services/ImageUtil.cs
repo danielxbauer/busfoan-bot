@@ -3,15 +3,15 @@ using System.Drawing;
 using System.Linq;
 using BusfoanBot.Graphic.Models;
 
-namespace BusfoanBot.Graphic
+namespace BusfoanBot.Graphic.Services
 {
-    public class MergeOptions
+    internal class MergeOptions
     {
         public Padding Padding { get; set; } = Padding.None;
         public int Gap { get; set; } = 0;
     }
 
-    public static class ImageUtil
+    internal static class ImageUtil
     {
         public static Bitmap MergeHorizontal(IEnumerable<PaddableImage> images, MergeOptions options)
         {

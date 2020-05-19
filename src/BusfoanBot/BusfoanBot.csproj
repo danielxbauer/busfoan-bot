@@ -10,14 +10,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Busfoan.Domain\Busfoan.Domain.csproj" />
     <ProjectReference Include="..\BusfoanBot.Graphic\BusfoanBot.Graphic.csproj" />
   </ItemGroup>
 
   <!-- Include Assets -->
   <ItemGroup>
-    <None Include="..\..\Assets\Cards\Default\Rendered\**"
-          CopyToOutputDirectory="PreserveNewest"
-          LinkBase="Assets\" />
+    <None Include="..\..\Assets\Cards\Default\Rendered\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Assets\" />
   </ItemGroup>
 
   <ItemGroup>

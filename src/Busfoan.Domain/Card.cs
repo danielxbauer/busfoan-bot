@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BusfoanBot.Models
+namespace BusfoanBot.Domain
 {
     public sealed class Card
     {

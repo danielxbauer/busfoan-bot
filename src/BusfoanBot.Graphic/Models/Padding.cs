@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-
-namespace BusfoanBot.Graphic.Models
+﻿namespace BusfoanBot.Graphic.Models
 {
-    public sealed class Padding
+    internal sealed class Padding
     {
         public int Top { get; set; } = 0;
         public int Right { get; set; } = 0;

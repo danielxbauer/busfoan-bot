@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
-using BusfoanBot.Models;
+using BusfoanBot.Domain;
+using BusfoanBot.Graphic;
 using Discord;
-using Discord.Rest;
 using Discord.WebSocket;
 using Statecharts.NET.Interfaces;
 using Statecharts.NET.XState;
@@ -18,11 +17,10 @@ namespace BusfoanBot
     {
         public BotContext(
             ISocketMessageChannel channel,
-            ImageCache imageCache,
             IEnumerable<Question> questions)
             : base(channel)
         {
-            ImageCache = imageCache ?? throw new ArgumentNullException(nameof(imageCache));
+            //ImageCache = imageCache ?? throw new ArgumentNullException(nameof(imageCache));
             AllPlayers = ImmutableList<Player>.Empty;
             Questions = ImmutableStack.CreateRange(questions.Reverse());
             Players = ImmutableStack<Player>.Empty;
@@ -30,7 +28,7 @@ namespace BusfoanBot
             PlayerCards = new Dictionary<ulong, ImmutableList<Card>>();
         }
 
-        public ImageCache ImageCache { get; }
+        //public ImageCache ImageCache { get; }
         public ImmutableStack<Card> Cards { get; set; }
         public IDictionary<ulong, ImmutableList<Card>> PlayerCards { get; }
 

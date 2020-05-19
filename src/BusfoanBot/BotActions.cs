@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using BusfoanBot.Domain;
+using BusfoanBot.Graphic;
 using BusfoanBot.Models;
 using Discord;
 using Discord.WebSocket;
@@ -12,6 +14,8 @@ namespace BusfoanBot
 {
     public static class BotActions
     {
+        public static IImageProcessor imageProcessor; // TODO:
+
         private static Embed GetWelcomeMessage(BotContext context)
         {
             var playerNames = context.AllPlayers.Select(p => $"\t*{p.Name}");
@@ -127,9 +131,9 @@ namespace BusfoanBot
                 .WithColor(Color.Orange)
                 .Build();
 
-            var cardImage = context.ImageCache.GenerateCardImage(cards, showEmptyCard: true);
+            var cardImage = imageProcessor.GenerateCardImage(cards, showEmptyCard: true);
             await context.SendReactableFile(cardImage, message,
-                context.ActiveQuestion.Answers.Select(a => a.Emote).AsEnumerable());
+                context.ActiveQuestion.Answers.Select(a => new Emoji(a.Emote)).AsEnumerable());
         }
 
         public static async Task RevealCard(BotContext context)
@@ -151,7 +155,7 @@ namespace BusfoanBot
             Card card = context.RevealCard(player.Id);
 
             // TODO: test what happens if an exception is thrown here (e.g. wrong file path)
-            bool isCorrect = context.ActiveQuestion.IsCorrectAnswer(reaction.Emote, lastCards, card);
+            bool isCorrect = context.ActiveQuestion.IsCorrectAnswer(reaction.Emote.Name, lastCards, card);
 
             var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty);
             var message = new EmbedBuilder()
@@ -162,9 +166,9 @@ namespace BusfoanBot
                     : $"{Emotes.CrossMark} Sauf ans {Emotes.BeerClinking}")
                 .Build();
 
-            context.DeleteMessage(context.LastReactableMessage);
+            ////context.DeleteMessage(context.LastReactableMessage);
 
-            var cardImage = context.ImageCache.GenerateCardImage(cards, showEmptyCard: false);
+            var cardImage = imageProcessor.GenerateCardImage(cards, showEmptyCard: false);
             await context.SendFile(cardImage, message);
         }        
     }
