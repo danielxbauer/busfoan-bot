@@ -1,6 +1,7 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
-using BusfoanBot.Graphic.Models;
+using System.Linq;
 
 namespace BusfoanBot.Graphic.Extensions
 {
@@ -14,5 +15,11 @@ namespace BusfoanBot.Graphic.Extensions
 
             return memoryStream;
         }
+
+        public static int Width(this IEnumerable<Bitmap> images)
+            => images.Sum(i => i.Width);
+
+        public static int Height(this IEnumerable<Bitmap> images)
+            => images.Sum(i => i.Height);
     }
 }
