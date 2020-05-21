@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Linq;
 using BusfoanBot.Graphic.Extensions;
 using BusfoanBot.Graphic.Models;
@@ -49,7 +51,6 @@ namespace BusfoanBot.Graphic.Services
             var bitmap = new Bitmap(width, height);
             using (var g = Graphics.FromImage(bitmap))
             {
-                //int heightOffset = options.Padding.Top;
                 int heightOffset = options.YAlign switch
                 {
                     YAlign.Top => options.Padding.Top,
@@ -125,6 +126,35 @@ namespace BusfoanBot.Graphic.Services
 
                     widthOffset += image.Width + options.Gap;
                 }
+            }
+
+            return bitmap;
+        }
+    
+        public static Bitmap Text(string text, int size, int width)
+        {
+            int pad = size / 2;
+            int height = size + pad;
+            var bitmap = new Bitmap(width, height);
+
+            using (var g = Graphics.FromImage(bitmap))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
+                var format = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+
+                g.DrawString(text, 
+                    new Font("Tahoma", size), 
+                    Brushes.Black,
+                    new RectangleF(0, 0, width, height), 
+                    format);
             }
 
             return bitmap;

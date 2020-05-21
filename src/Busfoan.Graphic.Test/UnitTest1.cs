@@ -1,9 +1,4 @@
-using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using BusfoanBot.Graphic.Extensions;
-using BusfoanBot.Graphic.Models;
 using BusfoanBot.Graphic.Services;
 using Xunit;
 using static BusfoanBot.Graphic.Services.ImageUtil;
@@ -189,6 +184,22 @@ namespace BusfoanBot.Graphic.Test
             hminH300.Save("h_minH300.png");
             Assert.Equal(100, hminH300.Width);
             Assert.Equal(300, hminH300.Height);
+        }
+
+        [Fact]
+        public void TestText()
+        {
+            var i100 = new Bitmap("100x100.png");
+
+            var textSmall = Vertical(
+                Text("jsmall", 26, 100),
+                i100);
+            textSmall.Save("text_small.png");
+
+            var textLong = Vertical(
+                Text("loooong", 14, 100),
+                i100);
+            textLong.Save("text_long.png");
         }
     }
 }
