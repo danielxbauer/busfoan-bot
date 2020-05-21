@@ -132,18 +132,18 @@ namespace Busfoan.Graphic.Test.Util
             var i100 = new Bitmap("100x100.png");
 
             var textSmall = Vertical(
-                Text("jsmall", 26, 100),
+                Text(new TextOptions { Width = 100, FontSize = 26 }, "jsmall"),
                 i100);
             textSmall.Save("text_small.png");
 
             var textLong = Vertical(
-                Text("loooong", 14, 100),
+                Text(new TextOptions { Width = 100, FontSize = 14 }, "loooong"),
                 i100);
             textLong.Save("text_long.png");
         }
 
         [Fact]
-        public void Test()
+        public void PadTest()
         {
             var i200 = new Bitmap("200x200.png");
             
@@ -156,6 +156,55 @@ namespace Busfoan.Graphic.Test.Util
             padr200.Save("v_pr200.png");
             Assert.Equal(400, padr200.Width);
             Assert.Equal(200, padr200.Height);
+        }
+
+        [Fact]
+        public void GeneratePyramid()
+        {
+            var card = new Bitmap("card.png");
+
+            var style = new MergeOptions { Gap = 10, XAlign = XAlign.Center };
+            var pyramid = Vertical(
+                style,
+                Horizontal(style, card),
+                Horizontal(style, card, card),
+                Horizontal(style, card, card, card),
+                Horizontal(style, card, card, card, card));
+
+            pyramid.Save("pyramid.png");
+        }
+
+        [Fact]
+        public void GeneratePlayerCards()
+        {
+            var card = new Bitmap("card.png");
+
+            var gap10 = new MergeOptions { Gap = 10 };
+            var gap20 = new MergeOptions { Gap = 20 };
+            var gap40 = new MergeOptions { Gap = 40 };
+
+            var textStyle = new TextOptions 
+            { 
+                FontSize = 64, 
+                Color = Brushes.White,
+                Width = card.Width * 4 
+            };
+
+            var player1 = Vertical(
+                Text(textStyle, "player1"),
+                Horizontal(gap10, card, card, card, card));
+            var player2 = Vertical(
+                Text(textStyle, "player2"),
+                Horizontal(gap10, card, card, card, card));
+
+            var cards = Vertical(
+                gap20,
+                Horizontal(gap40, player1, player2),
+                Horizontal(gap40, player1, player2),
+                Horizontal(gap40, player1, player2),
+                player1);
+
+            cards.Save("pyramid_cards.png");
         }
     }
 }

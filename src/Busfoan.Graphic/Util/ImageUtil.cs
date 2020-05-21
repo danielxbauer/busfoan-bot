@@ -121,11 +121,13 @@ namespace Busfoan.Graphic.Util
 
             return bitmap;
         }
-    
-        public static Bitmap Text(string text, int size, int width)
+
+        public static Bitmap Text(string text)
+            => Text(new TextOptions(), text);
+        public static Bitmap Text(TextOptions options, string text)
         {
-            int pad = size / 2;
-            int height = size + pad;
+            int width = options.Width;
+            int height = options.FontSize + options.FontSize / 2;
             var bitmap = new Bitmap(width, height);
 
             using (var g = Graphics.FromImage(bitmap))
@@ -142,8 +144,8 @@ namespace Busfoan.Graphic.Util
                 };
 
                 g.DrawString(text, 
-                    new Font("Tahoma", size), 
-                    Brushes.Black,
+                    new Font("Tahoma", options.FontSize), 
+                    options.Color,
                     new RectangleF(0, 0, width, height), 
                     format);
             }
