@@ -1,4 +1,4 @@
-﻿namespace BusfoanBot.Domain
+﻿namespace Busfoan.Domain
 {
     public enum CardSymbol
     {

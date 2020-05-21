@@ -3,7 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-namespace BusfoanBot.Graphic.Extensions
+namespace Busfoan.Graphic.Extensions
 {
     public static class BitmapExtensions
     {
@@ -16,10 +16,10 @@ namespace BusfoanBot.Graphic.Extensions
             return memoryStream;
         }
 
-        public static int Width(this IEnumerable<Bitmap> images)
+        internal static int Width(this IEnumerable<Bitmap> images)
             => images.Sum(i => i.Width);
 
-        public static int Height(this IEnumerable<Bitmap> images)
+        internal static int Height(this IEnumerable<Bitmap> images)
             => images.Sum(i => i.Height);
     }
 }

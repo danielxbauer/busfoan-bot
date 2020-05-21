@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Busfoan.Domain\Busfoan.Domain.csproj" />
-    <ProjectReference Include="..\BusfoanBot.Graphic\BusfoanBot.Graphic.csproj" />
+    <ProjectReference Include="..\Busfoan.Graphic\Busfoan.Graphic.csproj" />
   </ItemGroup>
 
   <!-- Include Assets -->

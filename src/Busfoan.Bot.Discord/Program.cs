@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Busfoan.Bot.Discord.Models;
+using Busfoan.Graphic;
+using Busfoan.Graphic.Services;
 using Discord;
 using Discord.WebSocket;
 using Statecharts.NET;
 using Statecharts.NET.Model;
 using Statecharts.NET.XState;
-using static BusfoanBot.BotStateMachine;
-using static BusfoanBot.BotEvents;
-using Task = System.Threading.Tasks.Task;
-using BusfoanBot.Models;
-using BusfoanBot.Graphic;
-using BusfoanBot.Graphic.Services;
+using static Busfoan.Bot.Discord.BotEvents;
+using static Busfoan.Bot.Discord.BotStateMachine;
 
-namespace BusfoanBot
+namespace Busfoan.Bot.Discord
 {
-	class Program
+    class Program
     {
 		private static readonly string token = "NzA2NDk3MjMwMDA1MjA3MDQx.Xq7pFw.mGgt38aCNVHmcZ4NxR4xXwqDMgY";
 		

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BusfoanBot.Domain;
-using BusfoanBot.Extensions;
-using BusfoanBot.Models;
+using Busfoan.Bot.Discord.Extensions;
+using Busfoan.Bot.Discord.Models;
+using Busfoan.Domain;
 using Discord.WebSocket;
 using Statecharts.NET.Language;
 using Statecharts.NET.Model;
 using Statecharts.NET.Utilities.Time;
-using static BusfoanBot.BotActions;
-using static BusfoanBot.BotEvents;
+using static Busfoan.Bot.Discord.BotActions;
+using static Busfoan.Bot.Discord.BotEvents;
 using static Statecharts.NET.Language.Keywords;
 
-namespace BusfoanBot
+namespace Busfoan.Bot.Discord
 {
     public static class BotStateMachine
     {

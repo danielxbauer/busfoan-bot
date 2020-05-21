@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Immutable;
-using BusfoanBot.Domain;
+using Busfoan.Domain;
 using Discord;
 
-namespace BusfoanBot.Extensions
+namespace Busfoan.Bot.Discord.Extensions
 {
     internal static class DomainExtensions
     {

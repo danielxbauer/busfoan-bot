@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using BusfoanBot.Domain;
-using BusfoanBot.Graphic.Extensions;
-using BusfoanBot.Graphic.Models;
+using Busfoan.Domain;
+using Busfoan.Graphic.Extensions;
+using Busfoan.Graphic.Models;
+using static Busfoan.Graphic.Util.ImageUtil;
 
-namespace BusfoanBot.Graphic.Services
+namespace Busfoan.Graphic.Services
 {
     public class ImageProcessor : IImageProcessor
     {
@@ -55,7 +56,7 @@ namespace BusfoanBot.Graphic.Services
 
             options.Padding.Right += options.Gap + (cardWidth * (4 - images.Count()));
             
-            return ImageUtil.Horizontal(options, images.ToArray()).AsStream();
+            return Horizontal(options, images.ToArray()).AsStream();
         }
     }
 }

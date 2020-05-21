@@ -5,7 +5,7 @@ using Statecharts.NET.Interfaces;
 using Statecharts.NET.Language.Builders.Transition;
 using static Statecharts.NET.Language.Keywords;
 
-namespace BusfoanBot.Extensions
+namespace Busfoan.Bot.Discord.Extensions
 {
     public static class StatechartsExtensions
     {

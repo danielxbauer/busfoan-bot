@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Svg;
 
-namespace BusfoanBot.ImageScaler
+namespace Busfoan.ImageScaler
 {
     class Program
     {

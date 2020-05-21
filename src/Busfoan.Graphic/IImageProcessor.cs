@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using BusfoanBot.Domain;
+using Busfoan.Domain;
 
-namespace BusfoanBot.Graphic
+namespace Busfoan.Graphic
 {
     public interface IImageProcessor
     {

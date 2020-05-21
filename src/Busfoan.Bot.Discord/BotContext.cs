@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using BusfoanBot.Domain;
-using BusfoanBot.Graphic;
+using Busfoan.Domain;
 using Discord;
 using Discord.WebSocket;
 using Statecharts.NET.Interfaces;
 using Statecharts.NET.XState;
 
-namespace BusfoanBot
+namespace Busfoan.Bot.Discord
 {
     public delegate EmbedBuilder MessageBuilder(EmbedBuilder builder);
 

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusfoanBot.Graphic\BusfoanBot.Graphic.csproj" />
+    <ProjectReference Include="..\Busfoan.Graphic\Busfoan.Graphic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

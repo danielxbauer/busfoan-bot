@@ -2,7 +2,7 @@
 using Statecharts.NET.Language;
 using Statecharts.NET.Model;
 
-namespace BusfoanBot
+namespace Busfoan.Bot.Discord
 {
     public static class BotEvents
     {

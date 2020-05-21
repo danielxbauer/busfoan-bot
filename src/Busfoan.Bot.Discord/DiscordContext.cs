@@ -7,7 +7,7 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 
-namespace BusfoanBot
+namespace Busfoan.Bot.Discord
 {
     public abstract class DiscordContext
     {

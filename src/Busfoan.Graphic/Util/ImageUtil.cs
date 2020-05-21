@@ -3,32 +3,12 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
-using BusfoanBot.Graphic.Extensions;
-using BusfoanBot.Graphic.Models;
+using Busfoan.Graphic.Extensions;
+using Busfoan.Graphic.Models;
 
-namespace BusfoanBot.Graphic.Services
+namespace Busfoan.Graphic.Util
 {
-    public enum XAlign
-    {
-        Left, Center, Right
-    }
-
-    public enum YAlign
-    {
-        Top, Center, Bottom
-    }
-
-    public class MergeOptions
-    {
-        public int MinWidth { get; set; } = 0;
-        public int MinHeight { get; set; } = 0;
-        public Padding Padding { get; set; } = Padding.None;
-        public int Gap { get; set; } = 0;
-        public XAlign XAlign { get; set; } = XAlign.Center;
-        public YAlign YAlign { get; set; } = YAlign.Center;
-    }
-
-    public static class ImageUtil
+    internal static class ImageUtil
     {
         public static Bitmap Vertical(params Bitmap[] images)
             => Vertical(null, images);

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace BusfoanBot.Domain
+namespace Busfoan.Domain
 {
     public sealed class Answer
     {

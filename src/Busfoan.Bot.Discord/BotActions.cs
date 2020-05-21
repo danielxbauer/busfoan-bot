@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using BusfoanBot.Domain;
-using BusfoanBot.Graphic;
-using BusfoanBot.Models;
+using Busfoan.Bot.Discord.Models;
+using Busfoan.Domain;
+using Busfoan.Graphic;
 using Discord;
 using Discord.WebSocket;
 using Statecharts.NET.Utilities;
 
-namespace BusfoanBot
+namespace Busfoan.Bot.Discord
 {
     public static class BotActions
     {

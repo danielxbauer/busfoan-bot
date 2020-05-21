@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Statecharts.NET.Utilities.Time;
 
-namespace BusfoanBot.Models
+namespace Busfoan.Bot.Discord.Models
 {
     public sealed class BotOptions
     {
