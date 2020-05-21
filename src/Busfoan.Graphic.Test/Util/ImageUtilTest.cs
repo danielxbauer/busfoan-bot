@@ -141,5 +141,21 @@ namespace Busfoan.Graphic.Test.Util
                 i100);
             textLong.Save("text_long.png");
         }
+
+        [Fact]
+        public void Test()
+        {
+            var i200 = new Bitmap("200x200.png");
+            
+            var pad100 = Pad(i200, Padding.All(100));
+            pad100.Save("v_p100.png");
+            Assert.Equal(400, pad100.Width);
+            Assert.Equal(400, pad100.Height);
+
+            var padr200 = Pad(i200, Padding.RightPadding(200));
+            padr200.Save("v_pr200.png");
+            Assert.Equal(400, padr200.Width);
+            Assert.Equal(200, padr200.Height);
+        }
     }
 }

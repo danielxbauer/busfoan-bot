@@ -48,14 +48,12 @@ namespace Busfoan.Graphic.Services
             var images = cards.Select(card => imageCache[card.Id]).ToList();
             if (showEmptyCard) images.Add(imageCache["back"]);
 
-            var options = new MergeOptions
-            {
-                Padding = Padding.All(20),
-                Gap = 20
+            var options = new MergeOptions 
+            { 
+                MinWidth = cardWidth * 4,
+                Gap = 20 
             };
 
-            options.Padding.Right += options.Gap + (cardWidth * (4 - images.Count()));
-            
             return Horizontal(options, images.ToArray()).AsStream();
         }
     }
