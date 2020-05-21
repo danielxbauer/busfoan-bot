@@ -44,7 +44,8 @@ namespace BusfoanBot.Graphic.Services
 
         public Stream GenerateCardImage(IEnumerable<Card> cards, bool showEmptyCard)
         {
-            var images = cards.Select(card => imageCache[card.Id].WithNoPadding()).ToList();
+            var images = cards.Select(card => imageCache[card.Id]).ToList();
+            if (showEmptyCard) images.Add(imageCache["back"]);
 
             var options = new MergeOptions
             {
@@ -52,12 +53,9 @@ namespace BusfoanBot.Graphic.Services
                 Gap = 20
             };
 
-            if (showEmptyCard)
-                images.Add(imageCache["back"].WithNoPadding());
-
             options.Padding.Right += options.Gap + (cardWidth * (4 - images.Count()));
-
-            return ImageUtil.MergeHorizontal(images, options).AsStream();
+            
+            return ImageUtil.Horizontal(options, images.ToArray()).AsStream();
         }
     }
 }
