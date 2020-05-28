@@ -181,7 +181,6 @@ namespace Busfoan.Bot.Discord
 
         public static async Task ShowPyramid(BotContext context)
         {
-            //await context.SendMessage("PYRAMID");
             var image = imageProcessor.GeneratePyramidImage(context.Pyramid);
             await context.SendFile(image);
         }

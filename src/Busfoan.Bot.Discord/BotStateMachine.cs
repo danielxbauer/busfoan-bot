@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Busfoan.Bot.Discord.Extensions;
 using Busfoan.Bot.Discord.Models;
@@ -142,7 +141,7 @@ namespace Busfoan.Bot.Discord
                                     Immediately
                                         .TransitionTo.Absolute("busfoan", "final")),
                                 "waiting".WithTransitions(
-                                    After(3.Seconds()).TransitionTo.Sibling("checking")),
+                                    After(1.Seconds()).TransitionTo.Sibling("checking")),
                                 "checking".WithTransitions(
                                     After(1.Seconds())
                                         .TransitionTo.Sibling("show")

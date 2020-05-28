@@ -7,11 +7,13 @@ namespace Busfoan.Domain
 {
     public class PyramidRow
     {
-        public PyramidRow(IEnumerable<Card> cards)
+        public PyramidRow(int row, IEnumerable<Card> cards)
         {
+            this.Row = row;
             this.Cards = ImmutableList.CreateRange(cards);
         }
 
+        public int Row { get; }
         public ImmutableList<Card> Cards { get; }
     }
 
@@ -26,13 +28,13 @@ namespace Busfoan.Domain
         {
             for (int i = 1; i <= rows; i++)
             {
-                yield return new PyramidRow(
+                yield return new PyramidRow(i,
                     Enumerable.Range(0, i).Select(_ => draw()).ToList());
             }
         }
 
         public ImmutableList<PyramidRow> Rows { get; }
-        private IEnumerable<Card> Cards => Rows.SelectMany(r => r.Cards);
+        private IEnumerable<Card> Cards => Rows.OrderByDescending(r => r.Row).SelectMany(r => r.Cards);
 
         public void RevealCard()
         {
