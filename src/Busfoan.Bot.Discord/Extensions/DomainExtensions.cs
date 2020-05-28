@@ -7,7 +7,7 @@ namespace Busfoan.Bot.Discord.Extensions
 {
     internal static class DomainExtensions
     {
-        public static Answer AsAnswer(this IEmote emote, Func<ImmutableList<Card>, Card, bool> isCorrect)
+        public static Answer AsAnswer(this IEmote emote, Func<ImmutableList<Card>, bool> isCorrect)
             => new Answer(emote.Name, isCorrect);
     }
 }

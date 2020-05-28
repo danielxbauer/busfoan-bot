@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Busfoan.Bot.Discord.Extensions;
 using Busfoan.Bot.Discord.Models;
@@ -20,24 +21,39 @@ namespace Busfoan.Bot.Discord
             => new BotContext(channel, new[]
             {
                 Question.Create($"{Emotes.ThumbsUp} Rot oder {Emotes.Grin} Schwarz?",
-                    Emotes.ThumbsUp.AsAnswer((_, card) => card.IsRed),
-                    Emotes.Grin.AsAnswer((_, card) => card.IsBlack)),
+                    Emotes.ThumbsUp.AsAnswer(cards => cards.First().IsRed),
+                    Emotes.Grin.AsAnswer(cards => cards.First().IsBlack)),
                 Question.Create($"{Emotes.ThumbsUp} Drunter, {Emotes.Check} Drüber oder {Emotes.Grin} Grenze?",
-                    Emotes.ThumbsUp.AsAnswer((lastCards, card) => card.Value < lastCards.ElementAt(0).Value),
-                    Emotes.Check.AsAnswer((lastCards, card) => card.Value > lastCards.ElementAt(0).Value),
-                    Emotes.Grin.AsAnswer((lastCards, card) => card.Value == lastCards.ElementAt(0).Value)),
+                    Emotes.ThumbsUp.AsAnswer(cards => cards.Last().Value < cards.First().Value),
+                    Emotes.Check.AsAnswer(cards => cards.Last().Value > cards.First().Value),
+                    Emotes.Grin.AsAnswer(cards => cards.Last().Value == cards.First().Value)),
                 Question.Create($"{Emotes.ThumbsUp} Außen, {Emotes.Check} Innen oder {Emotes.Grin} Grenze?",
-                    Emotes.ThumbsUp.AsAnswer((lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
-                                                       && card.Value < lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
-                    Emotes.Check.AsAnswer((lastCards, card) => card.Value > lastCards.OrderBy(c => c.Value).ElementAt(0).Value
-                                                    || card.Value > lastCards.OrderBy(c => c.Value).ElementAt(1).Value),
-                    Emotes.Grin.AsAnswer((lastCards, card) => card.Value == lastCards.OrderBy(c => c.Value).ElementAt(0).Value
-                                                               ||card.Value == lastCards.OrderBy(c => c.Value).ElementAt(1).Value)),
+                    Emotes.ThumbsUp.AsAnswer(cards =>
+                    {
+                        var card = cards.Last();
+                        var lastCards = cards.RemoveAt(cards.Count - 1).OrderBy(c => c.Value);
+                        return card.Value > lastCards.ElementAt(0).Value
+                            && card.Value < lastCards.ElementAt(1).Value;
+                    }),
+                    Emotes.Check.AsAnswer(cards =>
+                    {
+                        var card = cards.Last();
+                        var lastCards = cards.RemoveAt(cards.Count - 1).OrderBy(c => c.Value);
+                        return card.Value > lastCards.ElementAt(0).Value
+                            || card.Value > lastCards.ElementAt(1).Value;
+                    }),
+                    Emotes.Grin.AsAnswer(cards =>
+                    {
+                        var card = cards.Last();
+                        var lastCards = cards.RemoveAt(cards.Count - 1).OrderBy(c => c.Value);
+                        return card.Value == lastCards.ElementAt(0).Value
+                            || card.Value == lastCards.ElementAt(1).Value;
+                    })),
                 Question.Create($"{Emotes.Club} Club, {Emotes.Spade} Spade, {Emotes.Diamond} Diamond oder {Emotes.Heart} Herz?",
-                    Emotes.Club.AsAnswer((_, card) => card.Symbol == CardSymbol.Club),
-                    Emotes.Spade.AsAnswer((_, card) => card.Symbol == CardSymbol.Spade),
-                    Emotes.Diamond.AsAnswer((_, card) => card.Symbol == CardSymbol.Diamond),
-                    Emotes.Heart.AsAnswer((_, card) => card.Symbol == CardSymbol.Heart))
+                    Emotes.Club.AsAnswer(cards => cards.Last().Symbol == CardSymbol.Club),
+                    Emotes.Spade.AsAnswer(cards => cards.Last().Symbol == CardSymbol.Spade),
+                    Emotes.Diamond.AsAnswer(cards => cards.Last().Symbol == CardSymbol.Diamond),
+                    Emotes.Heart.AsAnswer(cards => cards.Last().Symbol == CardSymbol.Heart))
             });
 
         public static StatechartDefinition<BotContext> Behaviour(BotContext botContext, BotOptions options) => Define.Statechart
@@ -70,7 +86,7 @@ namespace Busfoan.Bot.Discord
                                     .WithActions(AsyncReaction(LogNotEnoughPlayers)),
                                 On(ReactionAdded).IfReactedWith(Emotes.CrossMark)
                                     .TransitionTo.Self.WithActions(
-                                        Send(Cancel), 
+                                        Send(Cancel),
                                         Async(DeleteLastReactableMessage))),
                         "cleanup-wait-for-players"
                             .WithEntryActions<BotContext>(
@@ -89,7 +105,8 @@ namespace Busfoan.Bot.Discord
                                         .TransitionTo.Sibling("player")
                                         .WithActions(Run<BotContext>(SelectNextQuestion)),
                                     Immediately
-                                        .TransitionTo.Absolute("busfoan", "final")),
+                                        ////.TransitionTo.Absolute("busfoan", "final")),
+                                        .TransitionTo.Absolute("busfoan", "pyramid")),
                                 "player".WithTransitions(
                                     Immediately.If<BotContext>(c => c.ArePlayersLeft)
                                         .TransitionTo.Sibling("waiting")
@@ -112,6 +129,24 @@ namespace Busfoan.Bot.Discord
                                         Assign<BotContext>(c => c.LastReactableMessage = null))
                                     .WithTransitions(
                                         After(1.Seconds()).TransitionTo.Sibling("player"))),
+                        "pyramid"
+                            .WithEntryActions<BotContext>(
+                                Async(LogPyramidStartMessage))
+                            .AsCompound()
+                            .WithInitialState("show")
+                            .WithStates(
+                                "show".WithTransitions(
+                                    Immediately.If<BotContext>(c => c.Pyramid.CardsLeftToReveal)
+                                        .TransitionTo.Sibling("waiting")
+                                        .WithActions(Async(ShowPyramid)),
+                                    Immediately
+                                        .TransitionTo.Absolute("busfoan", "final")),
+                                "waiting".WithTransitions(
+                                    After(3.Seconds()).TransitionTo.Sibling("checking")),
+                                "checking".WithTransitions(
+                                    After(1.Seconds())
+                                        .TransitionTo.Sibling("show")
+                                        .WithActions<BotContext>(Async(RevealPyramidCard)))),
                         "canceled"
                             .WithEntryActions<BotContext>(
                                 Async(Canceled),

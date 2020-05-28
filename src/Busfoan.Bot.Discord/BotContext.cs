@@ -19,7 +19,6 @@ namespace Busfoan.Bot.Discord
             IEnumerable<Question> questions)
             : base(channel)
         {
-            //ImageCache = imageCache ?? throw new ArgumentNullException(nameof(imageCache));
             AllPlayers = ImmutableList<Player>.Empty;
             Questions = ImmutableStack.CreateRange(questions.Reverse());
             Players = ImmutableStack<Player>.Empty;
@@ -27,7 +26,6 @@ namespace Busfoan.Bot.Discord
             PlayerCards = new Dictionary<ulong, ImmutableList<Card>>();
         }
 
-        //public ImageCache ImageCache { get; }
         public ImmutableStack<Card> Cards { get; set; }
         public IDictionary<ulong, ImmutableList<Card>> PlayerCards { get; }
 
@@ -37,6 +35,8 @@ namespace Busfoan.Bot.Discord
         public ImmutableList<Player> AllPlayers { get; private set; }
         public ImmutableStack<Player> Players { get; private set; }
         public Player ActivePlayer { get; private set; }
+
+        public Pyramid Pyramid { get; set; }
 
         public ObjectValue AsJSObject() => new ObjectValue(Enumerable.Empty<JSProperty>());
         public BotContext CopyDeep() => this;
@@ -74,17 +74,29 @@ namespace Busfoan.Bot.Discord
             Players = Players.Pop();
         }
 
-        public Card RevealCard(ulong player)
+        public Card Draw()
         {
             Card card = Cards.Peek();
             Cards = Cards.Pop();
+            return card;
+        }
+
+        public ImmutableList<Card> Draw(ulong player)
+        {
+            Card card = Draw();
 
             if (!PlayerCards.ContainsKey(player))
                 PlayerCards.Add(player, ImmutableList.CreateRange(new[] { card }));
             else
                 PlayerCards[player] = PlayerCards[player].Add(card);
 
-            return card;
+            return PlayerCards[player];
+        }
+
+        public void RevealCard(ulong player)
+        {
+            Card card = PlayerCards[player].Last();
+            card.IsRevealed = true;
         }
     }
 }

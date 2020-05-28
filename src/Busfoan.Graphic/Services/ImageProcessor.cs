@@ -28,6 +28,18 @@ namespace Busfoan.Graphic.Services
             imageCache.Add("back", backImage);
         }
 
+        internal ImageProcessor(Bitmap bitmap, Card card)
+        {
+            cardWidth = bitmap.Width;
+            cardHeight = bitmap.Height;
+
+            imageCache = new Dictionary<string, Bitmap>
+            {
+                {  card.Id, bitmap }
+            };
+            imageCache.Add("back", bitmap);
+        }
+
         private Dictionary<string, Bitmap> LoadCardImages(string assetPath, IEnumerable<Card> cards)
         {
             var images = new Dictionary<string, Bitmap>();
@@ -43,18 +55,39 @@ namespace Busfoan.Graphic.Services
             return images;
         }
 
-        public Stream GenerateCardImage(IEnumerable<Card> cards, bool showEmptyCard)
+        private Bitmap ToImage(Card card)
         {
-            var images = cards.Select(card => imageCache[card.Id]).ToList();
-            if (showEmptyCard) images.Add(imageCache["back"]);
+            return card.IsRevealed
+                ? imageCache[card.Id]
+                : imageCache["back"];
+        }
 
-            var options = new MergeOptions 
-            { 
+        public Stream GenerateCardImage(IEnumerable<Card> cards)
+        {
+            var options = new MergeOptions
+            {
                 MinWidth = cardWidth * 4,
-                Gap = 20 
+                Gap = 20
             };
 
+            var images = cards.Select(ToImage).ToList();
             return Horizontal(options, images.ToArray()).AsStream();
+        }
+
+        public Stream GeneratePyramidImage(Pyramid pyramid)
+        {
+            var gap20 = new MergeOptions { Gap = 20 };
+
+            var rowImages = new List<Bitmap>();
+            foreach (var row in pyramid.Rows)
+            {
+                var images = row.Cards.Select(ToImage).ToList();
+                var rowImage = Horizontal(gap20, images.ToArray());
+                rowImages.Add(rowImage);
+            }
+
+            var centered = new MergeOptions { Gap = 20, XAlign = XAlign.Center };
+            return Vertical(centered, rowImages.ToArray()).AsStream();
         }
     }
 }

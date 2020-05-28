@@ -98,9 +98,11 @@ namespace Busfoan.Bot.Discord
 
         public static void ShuffleCards(BotContext context)
         {
+            // TODO: put into context
             var random = new Random();
             var shuffledCards = GenerateCards().OrderBy(x => random.Next());
             context.Cards = ImmutableStack.CreateRange(shuffledCards);
+            context.Pyramid = new Pyramid(4, context.Draw);
         }
 
         public static IEnumerable<Card> GenerateCards()
@@ -123,19 +125,20 @@ namespace Busfoan.Bot.Discord
 
         public static async Task AskQuestion(BotContext context)
         {
-            var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty);
-
+            var cards = context.Draw(context.ActivePlayer.Id);
+            
             var message = new EmbedBuilder()
                 .WithAuthor(context.ActivePlayer.Name)
                 .WithDescription(context.ActiveQuestion.Text)
                 .WithColor(Color.Orange)
                 .Build();
 
-            var cardImage = imageProcessor.GenerateCardImage(cards, showEmptyCard: true);
+            var cardImage = imageProcessor.GenerateCardImage(cards);
             await context.SendReactableFile(cardImage, message,
                 context.ActiveQuestion.Answers.Select(a => new Emoji(a.Emote)).AsEnumerable());
         }
 
+        // TODO: check if this works?
         public static async Task RevealCard(BotContext context)
         {
             if (context.ActivePlayer == null) return;
@@ -145,19 +148,18 @@ namespace Busfoan.Bot.Discord
                 .WithAuthor(context.ActivePlayer.Name)
                 .WithDescription($"{Emotes.CrossMark} Sauf ans {Emotes.BeerClinking}"));
         }
-
         public static async Task RevealCardForUser(BotContext context, SocketReaction reaction)
         {
             IUser player = reaction.User.GetValueOrDefault();
             if (player == null) return;
 
-            var lastCards = context.PlayerCards.GetValue(player.Id, null);
-            Card card = context.RevealCard(player.Id);
+            var cards = context.PlayerCards.GetValue(player.Id, ImmutableList<Card>.Empty);
+            context.RevealCard(player.Id);
 
             // TODO: test what happens if an exception is thrown here (e.g. wrong file path)
-            bool isCorrect = context.ActiveQuestion.IsCorrectAnswer(reaction.Emote.Name, lastCards, card);
+            bool isCorrect = context.ActiveQuestion.IsCorrectAnswer(reaction.Emote.Name, cards);
 
-            var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty);
+            //var cards = context.PlayerCards.GetValue(context.ActivePlayer.Id, ImmutableList<Card>.Empty);
             var message = new EmbedBuilder()
                 .WithColor(isCorrect ? Color.Green : Color.Red)
                 .WithAuthor(context.ActivePlayer.Name)
@@ -168,8 +170,26 @@ namespace Busfoan.Bot.Discord
 
             ////context.DeleteMessage(context.LastReactableMessage);
 
-            var cardImage = imageProcessor.GenerateCardImage(cards, showEmptyCard: false);
+            var cardImage = imageProcessor.GenerateCardImage(cards);
             await context.SendFile(cardImage, message);
-        }        
+        }
+
+        public static async Task LogPyramidStartMessage(BotContext context)
+        {
+            await context.SendMessage("LOS GEHTSS!");
+        }
+
+        public static async Task ShowPyramid(BotContext context)
+        {
+            //await context.SendMessage("PYRAMID");
+            var image = imageProcessor.GeneratePyramidImage(context.Pyramid);
+            await context.SendFile(image);
+        }
+
+        public static async Task RevealPyramidCard(BotContext context)
+        {
+            context.Pyramid.RevealCard();
+            await context.SendMessage("REVEAL PYRAMID CARD");
+        }
     }
 }

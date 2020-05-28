@@ -17,6 +17,7 @@ namespace Busfoan.Domain
         public string Type { get; }
         public CardSymbol Symbol { get; }
         public int Value { get; }
+        public bool IsRevealed { get; set; } = false;
 
         public bool IsRed => Symbol == CardSymbol.Diamond || Symbol == CardSymbol.Heart;
         public bool IsBlack => !IsRed;

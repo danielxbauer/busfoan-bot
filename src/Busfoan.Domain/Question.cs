@@ -19,7 +19,7 @@ namespace Busfoan.Domain
         public static Question Create(string text, params Answer[] answers)
             => new Question(text, answers);
 
-        public bool IsCorrectAnswer(string emote, ImmutableList<Card> lastCards, Card card)
-            => Answers.Where(a => a.Emote == emote).First().IsCorrect(lastCards, card);
+        public bool IsCorrectAnswer(string emote, ImmutableList<Card> cards)
+            => Answers.Where(a => a.Emote == emote).First().IsCorrect(cards);
     }
 }

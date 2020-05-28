@@ -6,6 +6,8 @@ namespace Busfoan.Graphic
 {
     public interface IImageProcessor
     {
-        Stream GenerateCardImage(IEnumerable<Card> cards, bool showEmptyCard);
+        Stream GenerateCardImage(IEnumerable<Card> cards);
+
+        Stream GeneratePyramidImage(Pyramid pyramid);
     }
 }

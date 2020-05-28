@@ -56,9 +56,7 @@ namespace Busfoan.Bot.Discord
             await message.DeleteAsync();
         }
 
-        public Task<RestUserMessage> SendFile(Stream stream) 
-            => SendFile(stream);
-        public async Task<RestUserMessage> SendFile(Stream stream, Embed embed)
+        public async Task<RestUserMessage> SendFile(Stream stream, Embed embed = null)
         {
             return await Channel.SendFileAsync(stream, "cards.png", embed: embed);
         }

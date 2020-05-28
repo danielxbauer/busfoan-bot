@@ -1,5 +1,7 @@
 using System.Drawing;
+using Busfoan.Domain;
 using Busfoan.Graphic.Models;
+using Busfoan.Graphic.Services;
 using Xunit;
 using static Busfoan.Graphic.Util.ImageUtil;
 
@@ -205,6 +207,19 @@ namespace Busfoan.Graphic.Test.Util
                 player1);
 
             cards.Save("pyramid_cards.png");
+        }
+
+        [Fact]
+        public void Pyramid()
+        {
+            var image = new Bitmap("card.png");
+            var card = new Card("A", CardSymbol.Club, 1);
+            var pyramid = new Pyramid(4, () => card);
+
+            var processor = new ImageProcessor(image, card);
+            var test = processor.GeneratePyramidImage(pyramid);
+
+            new Bitmap(test).Save("stream.png");
         }
     }
 }
